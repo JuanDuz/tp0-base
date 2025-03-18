@@ -35,7 +35,6 @@ def generar_compose(archivo_salida, cantidad_clientes):
         }
     }
 
-    # Generate client services dynamically
     for i in range(1, cantidad_clientes + 1):
         docker_compose['services'][f'client{i}'] = {
             'container_name': f'client{i}',
@@ -53,13 +52,11 @@ def generar_compose(archivo_salida, cantidad_clientes):
             ]
         }
 
-    # Save the generated docker-compose YAML file with correct indentation
     with open(archivo_salida, 'w') as archivo:
         yaml.dump(docker_compose, archivo, Dumper=IndentedDumper, default_flow_style=False, sort_keys=False, indent=2)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python3 mi-generador.py <output_file> <num_clients>")
         sys.exit(1)
 
     archivo_salida = sys.argv[1]
