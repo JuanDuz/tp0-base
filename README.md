@@ -1,18 +1,27 @@
-### Ejercicio N°2:
+### Ejercicio N°3:
 
-Se hace uso de los volumenes en docker-compose para evitar tener que buildear tras cambios en config.
-Se elimina del script py generador del docker-compose yaml la linea que fozaba loggin_level debug
+Se levanta un container momentaneo conectado a la misma network que server, con imagen de busybox para correr nc y luego --rm
 
-Corriendo
-
-```
-docker-compose -f docker-compose-dev.yaml up
-```
-
-se puede probar realizar cambios a la config y volver a correr
+1. Dar permisos al script
 
 ```
-docker-compose -f docker-compose-dev.yaml up
+chmod +x validar-echo-server.sh
 ```
 
-para chequear si los cambios impactaron sin hacer docker-compose -f docker-compose-dev.yaml build
+2. Correr build and up
+
+```
+make docker-compose-up
+```
+
+3. Ver logs
+
+```
+make docker-compose-logs
+```
+
+4. En nueva terminal correr y visualizar resultado
+
+```
+./validar-echo-server.sh
+```
