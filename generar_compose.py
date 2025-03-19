@@ -13,6 +13,9 @@ def generar_compose(archivo_salida, cantidad_clientes):
             'server': {
                 'container_name': 'server',
                 'image': 'server:latest',
+                'volumes': [
+                    './server/config.ini:/config.ini'
+                ],
                 'entrypoint': 'python3 /main.py',
                 'environment': [
                     'PYTHONUNBUFFERED=1',
@@ -39,6 +42,9 @@ def generar_compose(archivo_salida, cantidad_clientes):
         docker_compose['services'][f'client{i}'] = {
             'container_name': f'client{i}',
             'image': 'client:latest',
+            'volumes': [
+                './client/config.yaml:/config.yaml'
+            ],
             'entrypoint': '/client',
             'environment': [
                 f'CLI_ID={i}',
