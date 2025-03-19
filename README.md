@@ -1,25 +1,18 @@
-### Ejercicio N°1:
+### Ejercicio N°2:
 
-1. Brindar permisos al script
+Se hace uso de los volumenes en docker-compose para evitar tener que buildear tras cambios en config.
+Se elimina del script py generador del docker-compose yaml la linea que fozaba loggin_level debug
 
-```
-chmod +x generar-compose.sh
-```
-
-2. Correr el script con el nombre `docker-compose-dev.yaml` y cantidad de clientes requeridos
+Corriendo
 
 ```
-./generar-compose.sh docker-compose-dev.yaml {n}
+docker-compose -f docker-compose-dev.yaml up
 ```
 
-3. Ejecutar
+se puede probar realizar cambios a la config y volver a correr
 
 ```
-make docker-compose-up
+docker-compose -f docker-compose-dev.yaml up
 ```
 
-4. Revisar logs
-
-```
-make docker-compose-logs
-```
+para chequear si los cambios impactaron sin hacer docker-compose -f docker-compose-dev.yaml build
