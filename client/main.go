@@ -117,10 +117,11 @@ func main() {
 	defer stop()
 
 	client := common.NewClient(clientConfig)
-	client.StartClientLoop()
+	client.StartClientLoop(ctx)
 
 	<-ctx.Done() // Esperar señal
 	log.Infof("action: shutdown | result: in_progress | reason: received SIGTERM")
 	client.Close() // Asegurate de implementar esto
 	log.Infof("action: shutdown | result: success")
+	os.Exit(0)
 }
