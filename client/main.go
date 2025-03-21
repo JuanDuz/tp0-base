@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/op/go-logging"
@@ -110,6 +113,14 @@ func main() {
 		LoopPeriod:    v.GetDuration("loop.period"),
 	}
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	defer stop()
+
 	client := common.NewClient(clientConfig)
 	client.StartClientLoop()
+
+	<-ctx.Done() // Esperar señal
+	log.Infof("action: shutdown | result: in_progress | reason: received SIGTERM")
+	client.Close() // Asegurate de implementar esto
+	log.Infof("action: shutdown | result: success")
 }

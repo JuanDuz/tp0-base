@@ -4,6 +4,8 @@ from configparser import ConfigParser
 from common.server import Server
 import logging
 import os
+import signal
+import sys
 
 
 def initialize_config():
@@ -63,6 +65,12 @@ def initialize_log(logging_level):
         level=logging_level,
         datefmt='%Y-%m-%d %H:%M:%S',
     )
+
+def graceful_shutdown(signum, frame):
+    logging.info("action: shutdown | result: in_progress | signal: %s", signum)
+    server.stop()  # Implementar método stop para cerrar socket y threads
+    logging.info("action: shutdown | result: success")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
