@@ -79,8 +79,8 @@ class Server:
         self._server_socket.close()
         logging.info("action: close_socket | result: success")
 
-    def graceful_shutdown(signum, frame):
+    def graceful_shutdown(self, signum, frame,):
         logging.info("action: shutdown | result: in_progress | signal: %s", signum)
-        server.stop()
+        self.stop()
         logging.info("action: shutdown | result: success")
         sys.exit(0)
