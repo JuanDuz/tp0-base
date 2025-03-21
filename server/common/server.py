@@ -23,7 +23,7 @@ class Server:
         # the server
         while not self.was_killed:
             client_sock = self.__accept_new_connection()
-            if (client_sock != None)
+            if (client_sock != None):
                 self.__handle_client_connection(client_sock)
 
     def __handle_client_connection(self, client_sock):
