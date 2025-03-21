@@ -60,8 +60,14 @@ class Server:
 
         # Connection arrived
         logging.info('action: accept_connections | result: in_progress')
-        c, addr = self._server_socket.accept()
-        logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
+        try:
+            c, addr = self._server_socket.accept()
+            logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
+        except OSError as e:
+            if(self.was_killed):
+                logging.info(f"action: client_socket_closed_by_acceptor_socket | result : success")
+            else:
+                self._server_socket.close()
         return c
     
     def stop(self):
