@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 
@@ -119,9 +118,9 @@ func main() {
 	client := common.NewClient(clientConfig)
 	client.StartClientLoop(ctx)
 
-	<-ctx.Done() // Esperar señal
+	<-ctx.Done()
 	log.Infof("action: shutdown | result: in_progress | reason: received SIGTERM")
-	client.Close() // Asegurate de implementar esto
+	client.Close()
 	log.Infof("action: shutdown | result: success")
 	os.Exit(0)
 }
