@@ -59,5 +59,5 @@ class Server:
     
     def stop(self):
         logging.info("action: close_socket | result: in_progress")
-        self.sock.close()
+        self._server_socket.close()
         logging.info("action: close_socket | result: success")
