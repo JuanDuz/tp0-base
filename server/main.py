@@ -51,6 +51,10 @@ def main():
 
     # Initialize server and start server loop
     server = Server(port, listen_backlog)
+
+    signal.signal(signal.SIGTERM, graceful_shutdown)
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    
     server.run()
 
 def initialize_log(logging_level):
@@ -68,7 +72,7 @@ def initialize_log(logging_level):
 
 def graceful_shutdown(signum, frame):
     logging.info("action: shutdown | result: in_progress | signal: %s", signum)
-    server.stop()  # Implementar método stop para cerrar socket y threads
+    server.stop()
     logging.info("action: shutdown | result: success")
     sys.exit(0)
 
