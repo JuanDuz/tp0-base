@@ -51,10 +51,6 @@ def main():
 
     # Initialize server and start server loop
     server = Server(port, listen_backlog)
-
-    signal.signal(signal.SIGTERM, graceful_shutdown)
-    signal.signal(signal.SIGINT, graceful_shutdown)
-    
     server.run()
 
 def initialize_log(logging_level):
@@ -69,12 +65,6 @@ def initialize_log(logging_level):
         level=logging_level,
         datefmt='%Y-%m-%d %H:%M:%S',
     )
-
-def graceful_shutdown(signum, frame):
-    logging.info("action: shutdown | result: in_progress | signal: %s", signum)
-    server.stop()
-    logging.info("action: shutdown | result: success")
-    sys.exit(0)
 
 
 if __name__ == "__main__":

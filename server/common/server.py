@@ -9,6 +9,8 @@ class Server:
         self._server_socket.bind(('', port))
         self._server_socket.listen(listen_backlog)
         self.was_killed = False
+        signal.signal(signal.SIGTERM, self.graceful_shutdown)
+        signal.signal(signal.SIGINT, self.graceful_shutdown)
 
     def run(self):
         """
@@ -75,3 +77,9 @@ class Server:
         self.was_killed = True
         self._server_socket.close()
         logging.info("action: close_socket | result: success")
+
+    def graceful_shutdown(signum, frame):
+        logging.info("action: shutdown | result: in_progress | signal: %s", signum)
+        server.stop()
+        logging.info("action: shutdown | result: success")
+        sys.exit(0)
