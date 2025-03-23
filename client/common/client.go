@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"net"
 	"time"
-
-	"github.com/op/go-logging"
 )
 
 var log = logging.MustGetLogger("log")
@@ -60,7 +58,6 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 			log.Infof("action: loop_interrupted | result: success | client_id: %v", c.config.ID)
 			return
 		default:
-			// Continuar con el envío
 		}
 
 		err := c.createClientSocket()

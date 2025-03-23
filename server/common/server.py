@@ -23,11 +23,10 @@ class Server:
         finishes, servers starts to accept new connections again
         """
 
-        # TODO: Modify this program to handle signal to graceful shutdown
         # the server
         while not self.was_killed:
             client_sock = self.__accept_new_connection()
-            if (client_sock != None):
+            if client_sock is not None:
                 self.__handle_client_connection(client_sock)
 
     def __handle_client_connection(self, client_sock):
@@ -45,7 +44,7 @@ class Server:
             # TODO: Modify the send to avoid short-writes
             client_sock.send("{}\n".format(msg).encode('utf-8'))
         except OSError as e:
-            if(self.was_killed):
+            if self.was_killed:
                 logging.info(f"action: client_socket_closed_by_acceptor_socket | result : success")
             else:
                 logging.error("action: receive_message | result: fail | error: {e}")
@@ -68,7 +67,7 @@ class Server:
             c, addr = self._server_socket.accept()
             logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
         except OSError as e:
-            if(self.was_killed):
+            if self.was_killed:
                 logging.info(f"action: client_socket_closed_by_acceptor_socket | result : success")
             else:
                 self._server_socket.close()
@@ -80,7 +79,7 @@ class Server:
         self._server_socket.close()
         logging.info("action: close_socket | result: success")
 
-    def graceful_shutdown(self, signum, frame,):
+    def graceful_shutdown(self, signum, frame):
         logging.info("action: shutdown | result: in_progress | signal: %s", signum)
         self.stop()
         logging.info("action: shutdown | result: success")
