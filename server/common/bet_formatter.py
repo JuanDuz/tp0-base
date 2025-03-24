@@ -6,7 +6,6 @@ def format_bet_message(bet):
 
 
 def parse_bet_message(message):
-    print(message)
     fields = message.split("|")
     if len(fields) != 6:
         raise ValueError("Invalid bet message format")
