@@ -1,23 +1,36 @@
-### Ejercicio N°4:
+### Ejercicio N°5:
 
-Se modificó **el cliente y el servidor** para que respondan de manera adecuada a la señal `SIGTERM` y finalicen sus procesos de forma **graceful**. Esto implica:
+El cliente se encarga de enviar apuestas a través de una conexión TCP, mientras que el servidor las recibe, almacena y responde con una confirmación (ACK).
 
-- Cierre correcto de **file descriptors**
-- Loguear el cierre de los recursos afectados.
-- Terminar el proceso principal **solo después** de cerrar los recursos correctamente.
+Tanto en cliente como en servidor se crea un:
+- protocol
+- BetFormatter
+- BetClient que utiliza el formatter y protocol para mandar y recibir mensajes con el protocolo
+- El cliente y servidor tienen su implementacion de un BetClient
 
-#### Cliente
-- Se utilizó el paquete `os/signal` y `context` de Go para capturar señales `SIGTERM` y `SIGINT`.
-- Al recibir la señal, se ejecuta el close del cliente:
-    - Se termina la iteración del loop actual cerrando la conexión.
-    - Se sale del loop.
-    - Se loguea el shutdown
+El protocolo consta de mandar strings, donde primero se indica la longitud del mensaje con un \n.
+A partir de la longitud se puede leer el resto del mensaje.
 
-#### Servidor
+```
+<length>\n<message>
+```
 
-- Se utilizó el módulo `signal` de Python para capturar `SIGTERM` y `SIGINT`.
-- Al recibir la señal:
-    - Se cierra el socket del servidor.
-    - Se marca el flag was_killed como true para salir del loop de aceptar clientes.
-    - Se loguea el cierre del socket y el shutdown con los mensajes correspondientes.
-    - El proceso termina con `sys.exit(0)` para indicar una salida exitosa.
+El mensaje para transmitir una apuesta se envia y recibe como sus campos ordenados de la siguiente manera, separados por '|'
+```
+<first_name>|<last_name>|<document>|<birthdate>|<number>|<agency_id>
+```
+
+Para revisar ejecución, setear las variables de entorno
+```
+export NOMBRE='nombre'
+export APELLIDO='apellido'
+export DOCUMENT0='123456'
+export NACIMIENTO='1999-10-10'
+export NUMERO='1234'
+```
+
+levantar el docker y ver los logs
+```
+make docker-compose-up
+make docker-compose-logs
+```
