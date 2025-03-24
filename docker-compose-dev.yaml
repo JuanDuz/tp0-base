@@ -18,6 +18,11 @@ services:
     entrypoint: /client
     environment:
       - CLI_ID=1
+      - FIRST_NAME=${FIRST_NAME}
+      - LAST_NAME=${LAST_NAME}
+      - DOCUMENT=${DOCUMENT}
+      - DOB=${DOB}
+      - NUMBER=${NUMBER}
     networks:
       - testing_net
     depends_on:

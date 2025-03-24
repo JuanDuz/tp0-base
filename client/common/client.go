@@ -45,7 +45,8 @@ func NewClient(config ClientConfig) *Client {
 
 // StartClientLoop Send messages to the client until some time threshold is met
 func (c *Client) StartClientLoop(ctx context.Context) {
-	for msgID := 1; msgID <= c.config.LoopAmount; msgID++ {
+	msgID := 1
+	for msgID <= c.config.LoopAmount {
 		select {
 		case <-ctx.Done():
 			log.Infof("action: loop_interrupted | result: success | client_id: %v", c.config.ID)
@@ -64,10 +65,10 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 			continue
 		}
 
+		msgID++
 		time.Sleep(c.config.LoopPeriod)
 	}
 
-	log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
 }
 
 func (c *Client) EnsureConnection() {
