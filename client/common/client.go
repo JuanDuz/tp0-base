@@ -15,7 +15,7 @@ type ClientConfig struct {
 	ServerAddress string
 	LoopAmount    int
 	LoopPeriod    time.Duration
-	batchSize     int
+	BatchSize     int
 }
 
 // Client Entity that encapsulates how
@@ -51,12 +51,13 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Infof("action: loop_interrupted | result: success | client_id: %v", c.config.ID)
+			log.Infof("action: shutdown | result: in_progress | reason: received SIGTERM")
+			log.Infof("action: shutdown | result: success")
 			return
 		default:
 		}
 
-		batch, err := loader.NextBatch(c.config.batchSize)
+		batch, err := loader.NextBatch(c.config.BatchSize)
 		if err != nil {
 			if err.Error() == "EOF" {
 				log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
