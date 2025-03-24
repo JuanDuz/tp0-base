@@ -42,7 +42,7 @@ func NewClient(config ClientConfig) *Client {
 // StartClientLoop Send messages to the client until some time threshold is met
 func (c *Client) StartClientLoop(ctx context.Context) {
 
-	betNumber, err := strconv.Atoi(os.Getenv("NUMBER"))
+	betNumber, err := strconv.Atoi(os.Getenv("NUMERO"))
 	if err != nil {
 		log.Errorf("action: parse_bet_number | result: fail | client_id: %v | error: %v",
 			c.config.ID,
@@ -51,10 +51,10 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 		return
 	}
 	bet := &Bet{
-		firstName:      os.Getenv("FIRST_NAME"),
-		lastName:       os.Getenv("LAST_NAME"),
-		documentNumber: os.Getenv("DOCUMENT"),
-		dob:            os.Getenv("DOB"),
+		firstName:      os.Getenv("NOMBRE"),
+		lastName:       os.Getenv("APELLIDO"),
+		documentNumber: os.Getenv("DOCUMENT0"),
+		dob:            os.Getenv("NACIMIENTO"),
 		number:         betNumber,
 		agencyId:       c.config.ID,
 	}
