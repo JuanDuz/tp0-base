@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/op/go-logging"
 )
 
 var log = logging.MustGetLogger("log")
@@ -51,14 +53,14 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 		default:
 		}
 
-		// c.ensureConnection()
+		c.EnsureConnection()
 
 		err := sendAndReceive(c, msgID)
 
 		if err != nil {
 			log.Errorf("action: send_receive | result: fail | client_id: %v | error: %v", c.config.ID, err)
-			c.conn.Close()
-			c.conn = nil
+			c.Close()
+			c.betClient = nil
 			continue
 		}
 
@@ -68,20 +70,29 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 	log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
 }
 
-/*func (c *Client) ensureConnection() {
+func (c *Client) EnsureConnection() {
 	if c.betClient == nil {
-		if betClient, err := NewBetClient(c.config); err != nil {
+		betClient, err := NewBetClient(c.config)
+		if err != nil {
 			log.Errorf("action: reconnect | result: fail | client_id: %v | error: %v", c.config.ID, err)
 			return
 		}
 		c.betClient = betClient
 		log.Infof("action: reconnect | result: success | client_id: %v", c.config.ID)
 	}
-}*/
+	if c.betClient.conn == nil {
+		conn, err := createConnection(c.config.ServerAddress, c.config.ID)
+		if err != nil {
+			log.Errorf("action: reconnect | result: fail | client_id: %v | error: %v", c.config.ID, err)
+			return
+		}
+		c.betClient.conn = conn
+	}
+}
 
 func sendAndReceive(c *Client, msgID int) error {
 	_, err := fmt.Fprintf(
-		c.conn,
+		c.betClient.conn,
 		"[CLIENT %v] Message N°%v\n",
 		c.config.ID,
 		msgID,
@@ -90,7 +101,7 @@ func sendAndReceive(c *Client, msgID int) error {
 		return fmt.Errorf("send failed: %w", err)
 	}
 
-	msg, err := bufio.NewReader(c.conn).ReadString('\n')
+	msg, err := bufio.NewReader(c.betClient.conn).ReadString('\n')
 	if err != nil {
 		return fmt.Errorf("receive failed: %w", err)
 	}
@@ -103,12 +114,12 @@ func (c *Client) Close() {
 	c.betClient.Close()
 }
 
-func createConnection(serverAddress) (net.Conn, error) {
-	conn, err := net.Dial("tcp", ServerAddress)
+func createConnection(serverAddress string, clientId string) (net.Conn, error) {
+	conn, err := net.Dial("tcp", serverAddress)
 	if err != nil {
 		log.Criticalf(
 			"action: connect | result: fail | client_id: %v | error: %v",
-			config.ID,
+			clientId,
 			err,
 		)
 		return nil, err
@@ -185,7 +196,7 @@ type BetClient struct {
 
 // NewBetClient establishes a connection and returns a BetClient instance.
 func NewBetClient(config ClientConfig) (*BetClient, error) {
-	conn, err := createConnection(config.ServerAddress)
+	conn, err := createConnection(config.ServerAddress, config.ID)
 	if err != nil {
 		return nil, err
 	}
