@@ -1,13 +1,6 @@
 import csv
+import logging
 import datetime
-import time
-
-
-""" Bets storage location. """
-STORAGE_FILEPATH = "./bets.csv"
-""" Simulated winner number in the lottery contest. """
-LOTTERY_WINNER_NUMBER = 7574
-
 
 """ A lottery bet registry. """
 class Bet:
@@ -23,6 +16,11 @@ class Bet:
         self.document = document
         self.birthdate = datetime.date.fromisoformat(birthdate)
         self.number = int(number)
+
+""" Bets storage location. """
+STORAGE_FILEPATH = "./bets.csv"
+""" Simulated winner number in the lottery contest. """
+LOTTERY_WINNER_NUMBER = 7574
 
 """ Checks whether a bet won the prize or not. """
 def has_won(bet: Bet) -> bool:
@@ -49,3 +47,7 @@ def load_bets() -> list[Bet]:
         for row in reader:
             yield Bet(row[0], row[1], row[2], row[3], row[4], row[5])
 
+
+def log_bets_stored(bets: list[Bet]) -> None:
+        for bet in bets:
+            logging.info(f'action: apuesta_almacenada | result: success | dni: ${bet.document} | numero: ${bet.number}')

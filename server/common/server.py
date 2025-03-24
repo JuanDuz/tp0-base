@@ -3,6 +3,11 @@ import logging
 import signal
 import sys
 
+from common.bet_client import BetClient
+from common.utils import store_bets, log_bets_stored
+
+from common.utils import Bet
+
 
 class Server:
     def __init__(self, port, listen_backlog):
@@ -37,17 +42,12 @@ class Server:
         client socket will also be closed
         """
         try:
-            # TODO: Modify the receive to avoid short-reads
-            msg = client_sock.recv(1024).rstrip().decode('utf-8')
-            addr = client_sock.getpeername()
-            logging.info(f'action: receive_message | result: success | ip: {addr[0]} | msg: {msg}')
-            # TODO: Modify the send to avoid short-writes
-            client_sock.send("{}\n".format(msg).encode('utf-8'))
+            bet_client: BetClient = BetClient(client_sock)
+            bet: Bet = bet_client.receive_bet()
+            store_bets([bet])
+            log_bets_stored([bet])
         except OSError as e:
-            if self.was_killed:
-                logging.info(f"action: client_socket_closed_by_acceptor_socket | result : success")
-            else:
-                logging.error("action: receive_message | result: fail | error: {e}")
+            logging.error("action: receive_message | result: fail | error: {e}")
         finally:
             logging.info("action: close_client_socket | result: in_progress")
             client_sock.close()
