@@ -50,4 +50,5 @@ def load_bets() -> list[Bet]:
 
 def log_bets_stored(bets: list[Bet]) -> None:
         for bet in bets:
-            logging.info(f'action: apuesta_almacenada | result: success | dni: ${bet.document} | numero: ${bet.number}')
+            logging.info(f'action: apuesta_almacenada | result: success | dni: {bet.document} | numero: {bet.number}')
+

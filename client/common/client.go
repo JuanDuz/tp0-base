@@ -53,7 +53,7 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 	bet := &Bet{
 		firstName:      os.Getenv("NOMBRE"),
 		lastName:       os.Getenv("APELLIDO"),
-		documentNumber: os.Getenv("DOCUMENT0"),
+		documentNumber: os.Getenv("DOCUMENTO"),
 		dob:            os.Getenv("NACIMIENTO"),
 		number:         betNumber,
 		agencyId:       c.config.ID,
