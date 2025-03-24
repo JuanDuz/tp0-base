@@ -27,10 +27,9 @@ def generar_compose(archivo_salida, cantidad_clientes):
             'unzipper' {
                 'image': 'busybox',
                 'volumes': [
-                    './data:/data'
+                    './.data:/data'
                 ],
-                'entrypoint': '/bin/sh',
-                'command': '-c "unzip /data/datasets.zip -d /data && sleep 5"'
+                'entrypoint': 'unzip -o /data/dataset.zip -d /data',
             }
         },
         'networks': {
@@ -51,16 +50,11 @@ def generar_compose(archivo_salida, cantidad_clientes):
             'image': 'client:latest',
             'volumes': [
                 './client/config.yaml:/config.yaml'
-                f'./data/agency-{i}.csv:/agency.csv:ro'
+                f'./data/agency-{i}.csv:/data/agency-{i}.csv:ro'
             ],
             'entrypoint': '/client',
             'environment': [
                 f'CLI_ID={i}',
-                'NOMBRE=${NOMBRE}',
-                'APELLIDO=${APELLIDO}',
-                'DOCUMENTO=${DOCUMENTO}',
-                'NACIMIENTO=${NACIMIENTO}',
-                'NUMERO=${NUMERO}'
             ],
             'networks': [
                 'testing_net'

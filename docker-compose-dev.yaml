@@ -13,22 +13,17 @@ services:
   unzipper:
     image: busybox
     volumes:
-      - ./data:/data
-    entrypoint: /bin/sh
-    command: -c "unzip /data/dataset.zip -d /data && sleep 5"
+      - ./.data:/data
+    entrypoint: unzip -o /data/dataset.zip -d /data
   client1:
     container_name: client1
     image: client:latest
     volumes:
       - ./client/config.yaml:/config.yaml
+      - ./.data/agency-1.csv:/data/agency-1.csv:ro
     entrypoint: /client
     environment:
       - CLI_ID=1
-      - NOMBRE=${NOMBRE}
-      - APELLIDO=${APELLIDO}
-      - DOCUMENTO=${DOCUMENTO}
-      - NACIMIENTO=${NACIMIENTO}
-      - NUMERO=${NUMERO}
     networks:
       - testing_net
     depends_on:

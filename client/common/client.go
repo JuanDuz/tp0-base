@@ -34,7 +34,7 @@ func NewClient(config ClientConfig) *Client {
 
 // StartClientLoop Send messages to the client until some time threshold is met
 func (c *Client) StartClientLoop(ctx context.Context) {
-	filePath := ".data/agency-" + c.config.ID + ".csv"
+	filePath := "/data/agency-" + c.config.ID + ".csv"
 	loader, err := NewBetLoader(filePath)
 	if err != nil {
 		log.Criticalf("action: open_file | result: fail | file: %s | error: %v", filePath, err)
