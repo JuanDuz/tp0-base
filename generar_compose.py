@@ -47,11 +47,11 @@ def generar_compose(archivo_salida, cantidad_clientes):
             'entrypoint': '/client',
             'environment': [
                 f'CLI_ID={i}',
-                'FIRST_NAME=${FIRST_NAME}',
-                'LAST_NAME=${LAST_NAME}',
-                'DOCUMENT=${DOCUMENT}',
-                'DOB=${DOB}',
-                'NUMBER=${NUMBER}'
+                'NOMBRE=${NOMBRE}',
+                'APELLIDO=${APELLIDO}',
+                'DOCUMENTO=${DOCUMENTO}',
+                'NACIMIENTO=${NACIMIENTO}',
+                'NUMERO=${NUMERO}'
             ],
             'networks': [
                 'testing_net'
