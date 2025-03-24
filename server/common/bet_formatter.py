@@ -7,7 +7,7 @@ def format_bet_message(bet):
 
 def parse_bet_message(message):
     fields = message.split("|")
-    if len(fields) != 5:
+    if len(fields) != 6:
         raise ValueError("Invalid bet message format")
     return Bet(
         agency=fields[5],

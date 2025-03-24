@@ -117,6 +117,7 @@ func main() {
 
 	client := common.NewClient(clientConfig)
 	client.StartClientLoop(ctx)
+	client.Stop()
 
 	<-ctx.Done()
 	log.Infof("action: shutdown | result: in_progress | reason: received SIGTERM")
