@@ -8,11 +8,15 @@ class BetClient:
     def __init__(self, socket):
         self.socket = socket
 
-    def receive_bet(self) -> Bet:
+    def receive_bets(self) -> list[Bet]:
         raw_msg = receive_string(self.socket)
-        bet: Bet = parse_bet_message(raw_msg)
+        lines = raw_msg.strip().split('\n')
+        bets = []
+        for line in lines:
+            bet = parse_bet_message(line)
+            bets.append(bet)
         self.send_ack()
-        return bet
+        return bets
 
     def send_ack(self):
         send_string(self.socket, "ACK")
