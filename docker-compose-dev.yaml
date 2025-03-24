@@ -10,6 +10,12 @@ services:
       - PYTHONUNBUFFERED=1
     networks:
       - testing_net
+  unzipper:
+    image: busybox
+    volumes:
+      - ./data:/data
+    entrypoint: /bin/sh
+    command: -c "unzip /data/dataset.zip -d /data && sleep 5"
   client1:
     container_name: client1
     image: client:latest
@@ -27,6 +33,7 @@ services:
       - testing_net
     depends_on:
       - server
+      - unzipper
 networks:
   testing_net:
     ipam:

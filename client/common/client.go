@@ -2,8 +2,6 @@ package common
 
 import (
 	"context"
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/op/go-logging"
@@ -17,63 +15,72 @@ type ClientConfig struct {
 	ServerAddress string
 	LoopAmount    int
 	LoopPeriod    time.Duration
+	batchSize     int
 }
 
 // Client Entity that encapsulates how
 type Client struct {
-	config    ClientConfig
-	betClient *BetClient
+	config ClientConfig
 }
 
 // NewClient Initializes a new client receiving the configuration
 // as a parameter
 func NewClient(config ClientConfig) *Client {
-	betClient, err := NewBetClient(config)
-	if err != nil {
-		return nil
-	}
 	client := &Client{
-		config:    config,
-		betClient: betClient,
+		config: config,
 	}
 	return client
 }
 
 // StartClientLoop Send messages to the client until some time threshold is met
 func (c *Client) StartClientLoop(ctx context.Context) {
-
-	betNumber, err := strconv.Atoi(os.Getenv("NUMERO"))
+	filePath := ".data/agency-" + c.config.ID + ".csv"
+	loader, err := NewBetLoader(filePath)
 	if err != nil {
-		log.Errorf("action: parse_bet_number | result: fail | client_id: %v | error: %v",
-			c.config.ID,
-			err,
-		)
+		log.Criticalf("action: open_file | result: fail | file: %s | error: %v", filePath, err)
 		return
 	}
-	bet := &Bet{
-		firstName:      os.Getenv("NOMBRE"),
-		lastName:       os.Getenv("APELLIDO"),
-		documentNumber: os.Getenv("DOCUMENTO"),
-		dob:            os.Getenv("NACIMIENTO"),
-		number:         betNumber,
-		agencyId:       c.config.ID,
+	defer func() {
+		if err := loader.Close(); err != nil {
+			log.Errorf("action: close_csv | result: fail | error: %v", err)
+		} else {
+			log.Infof("action: close_csv | result: success")
+		}
+	}()
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Infof("action: loop_interrupted | result: success | client_id: %v", c.config.ID)
+			return
+		default:
+		}
+
+		batch, err := loader.NextBatch(c.config.batchSize)
+		if err != nil {
+			if err.Error() == "EOF" {
+				log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
+				return
+			}
+			log.Errorf("action: read_batch | result: fail | error: %v", err)
+			return
+		}
+
+		betClient, err := NewBetClient(c.config)
+		if err != nil {
+			log.Errorf("action: connect | result: fail | error: %v", err)
+			continue
+		}
+
+		err = betClient.SendBetBatch(batch)
+		betClient.Close()
+
+		if err != nil {
+			log.Errorf("action: send_batch | result: fail | error: %v", err)
+			continue
+		}
+		log.Errorf("action: send_batch | result: success | error: %v", err)
+
+		time.Sleep(c.config.LoopPeriod)
 	}
-
-	err = c.betClient.SendBet(bet)
-	if err != nil {
-		log.Errorf("action: apuesta_enviada | result: fail | dni: %v | numero: %v",
-			bet.documentNumber,
-			betNumber,
-		)
-		return
-	}
-	log.Infof("action: apuesta_enviada | result: success | dni: %v | numero: %v",
-		bet.documentNumber,
-		betNumber,
-	)
-
-}
-
-func (c *Client) Stop() {
-	c.betClient.Close()
 }

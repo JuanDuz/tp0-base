@@ -1,6 +1,9 @@
 package common
 
-import "net"
+import (
+	"net"
+	"strings"
+)
 
 type BetClient struct {
 	conn net.Conn
@@ -15,17 +18,24 @@ func NewBetClient(config ClientConfig) (*BetClient, error) {
 	return &BetClient{conn: conn}, nil
 }
 
-// SendBet formats and sends the bet using the protocol.
-func (bc *BetClient) SendBet(bet *Bet) error {
-	msg := FormatBetMessage(bet)
-	err := SendString(bc.conn, msg)
+func (bc *BetClient) SendBetBatch(bets []*Bet) error {
+	var sb strings.Builder
+
+	for _, bet := range bets {
+		sb.WriteString(FormatBetMessage(bet))
+		sb.WriteString("\n")
+	}
+
+	err := SendString(bc.conn, sb.String())
 	if err != nil {
 		return err
 	}
+
 	err = ReceiveAck(bc.conn)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
