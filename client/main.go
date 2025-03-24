@@ -120,7 +120,7 @@ func main() {
 
 	<-ctx.Done()
 	log.Infof("action: shutdown | result: in_progress | reason: received SIGTERM")
-	client.Close()
+	client.Stop()
 	log.Infof("action: shutdown | result: success")
 	os.Exit(0)
 }
