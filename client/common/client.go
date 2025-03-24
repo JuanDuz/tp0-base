@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net"
 	"time"
+
+	"github.com/op/go-logging"
 )
 
 var log = logging.MustGetLogger("log")
@@ -96,7 +98,10 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 func (c *Client) Close() {
 	log.Infof("action: close_socket | result: in_progress")
 	if c.conn != nil {
-		c.conn.Close()
+		err := c.conn.Close()
+		if err != nil {
+			log.Infof("action: close_socket | result: fail")
+		}
 	}
 	log.Infof("action: close_socket | result: success")
 }
