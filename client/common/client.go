@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/op/go-logging"
 )
 
 var log = logging.MustGetLogger("log")
@@ -103,12 +105,12 @@ func (c *Client) Close() {
 	c.betClient.Close()
 }
 
-func createConnection(serverAddress) (net.Conn, error) {
-	conn, err := net.Dial("tcp", ServerAddress)
+func createConnection(serverAddress string, clientID string) (net.Conn, error) {
+	conn, err := net.Dial("tcp", serverAddress)
 	if err != nil {
 		log.Criticalf(
 			"action: connect | result: fail | client_id: %v | error: %v",
-			config.ID,
+			clientID,
 			err,
 		)
 		return nil, err
@@ -185,7 +187,7 @@ type BetClient struct {
 
 // NewBetClient establishes a connection and returns a BetClient instance.
 func NewBetClient(config ClientConfig) (*BetClient, error) {
-	conn, err := createConnection(config.ServerAddress)
+	conn, err := createConnection(config.ServerAddress, config.ID)
 	if err != nil {
 		return nil, err
 	}
