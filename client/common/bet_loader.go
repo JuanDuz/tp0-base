@@ -35,12 +35,12 @@ func (bl *BetLoader) NextBatch(maxAmount int) ([]*Bet, error) {
 			return batch, nil // Return what we could read
 		}
 		bet := &Bet{
-			agencyId:       record[0],
-			firstName:      record[1],
-			lastName:       record[2],
-			documentNumber: record[3],
-			dob:            record[4],
-			number:         mustAtoi(record[5]),
+			agencyId:       "1", // TODO
+			firstName:      record[0],
+			lastName:       record[1],
+			documentNumber: record[2],
+			dob:            record[3],
+			number:         mustAtoi(record[4]),
 		}
 		batch = append(batch, bet)
 	}
