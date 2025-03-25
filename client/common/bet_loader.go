@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/csv"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 )
@@ -29,10 +30,13 @@ func (bl *BetLoader) NextBatch(maxAmount int) ([]*Bet, error) {
 	for len(batch) < maxAmount {
 		record, err := bl.reader.Read()
 		if err != nil {
-			if len(batch) == 0 {
-				return nil, err // No data read, return EOF or error
+			if err == io.EOF {
+				if len(batch) > 0 {
+					return batch, nil // último batch, incompleto pero válido
+				}
+				return nil, err // no hay más apuestas
 			}
-			return batch, nil // Return what we could read
+			return nil, err // error real
 		}
 		bet := &Bet{
 			agencyId:       "1", // TODO
