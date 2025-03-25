@@ -24,7 +24,7 @@ def generar_compose(archivo_salida, cantidad_clientes):
                     'testing_net'
                 ]
             },
-            'unzipper' {
+            'unzipper': {
                 'image': 'busybox',
                 'volumes': [
                     './.data:/data'
@@ -49,7 +49,7 @@ def generar_compose(archivo_salida, cantidad_clientes):
             'container_name': f'client{i}',
             'image': 'client:latest',
             'volumes': [
-                './client/config.yaml:/config.yaml'
+                './client/config.yaml:/config.yaml',
                 f'./data/agency-{i}.csv:/data/agency-{i}.csv:ro'
             ],
             'entrypoint': '/client',

@@ -1,0 +1,62 @@
+name: tp0
+services:
+  server:
+    container_name: server
+    image: server:latest
+    volumes:
+      - ./server/config.ini:/config.ini
+    entrypoint: python3 /main.py
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - testing_net
+  unzipper:
+    image: busybox
+    volumes:
+      - ./.data:/data
+    entrypoint: unzip -o /data/dataset.zip -d /data
+  client1:
+    container_name: client1
+    image: client:latest
+    volumes:
+      - ./client/config.yaml:/config.yaml./data/agency-1.csv:/data/agency-1.csv:ro
+    entrypoint: /client
+    environment:
+      - CLI_ID=1
+    networks:
+      - testing_net
+    depends_on:
+      - server
+      - unzipper
+  client2:
+    container_name: client2
+    image: client:latest
+    volumes:
+      - ./client/config.yaml:/config.yaml./data/agency-2.csv:/data/agency-2.csv:ro
+    entrypoint: /client
+    environment:
+      - CLI_ID=2
+    networks:
+      - testing_net
+    depends_on:
+      - server
+      - unzipper
+  client3:
+    container_name: client3
+    image: client:latest
+    volumes:
+      - ./client/config.yaml:/config.yaml./data/agency-3.csv:/data/agency-3.csv:ro
+    entrypoint: /client
+    environment:
+      - CLI_ID=3
+    networks:
+      - testing_net
+    depends_on:
+      - server
+      - unzipper
+networks:
+  testing_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.25.125.0/24
