@@ -73,6 +73,7 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 			continue
 		}
 
+		for
 		err = betClient.SendBetBatch(batch)
 		betClient.Close()
 
