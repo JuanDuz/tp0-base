@@ -51,7 +51,6 @@ func (bl *BetLoader) NextBatch(maxAmount int, agencyId string) ([]*Bet, error) {
 			number:         mustAtoi(record[4]),
 		}
 		encoded := FormatBetMessage(bet) + "\n"
-		log.Infof("Loading bet: " + encoded)
 		if currentSize+len(encoded) > MaxBatchSizeBytes {
 			break
 		}

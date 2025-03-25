@@ -23,7 +23,6 @@ func (bc *BetClient) SendBetBatch(bets []*Bet) error {
 
 	for _, bet := range bets {
 		encoded := FormatBetMessage(bet)
-		log.Infof("Writing: " + encoded)
 		sb.WriteString(encoded)
 		sb.WriteString("\n")
 	}
