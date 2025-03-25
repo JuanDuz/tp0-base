@@ -56,7 +56,7 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 			return
 		default:
 		}
-
+		log.Infof("Previous to enter next batch")
 		batch, err := loader.NextBatch(c.config.BatchSize)
 		if err != nil {
 			if err.Error() == "EOF" {
@@ -73,7 +73,6 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 			continue
 		}
 
-		for
 		err = betClient.SendBetBatch(batch)
 		betClient.Close()
 
