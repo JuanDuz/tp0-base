@@ -51,7 +51,7 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Infof("action: shutdown | result: in_progress | reason: received SIGTERM")
+			log.Infof("action: shutdown | result: in_progress | reason: received SIGTERM | SIGINT")
 			log.Infof("action: shutdown | result: success")
 			return
 		default:
@@ -81,7 +81,5 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 			continue
 		}
 		log.Errorf("action: send_batch | result: success | error: %v", err)
-
-		time.Sleep(c.config.LoopPeriod)
 	}
 }
