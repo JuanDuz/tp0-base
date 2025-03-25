@@ -50,7 +50,7 @@ def generar_compose(archivo_salida, cantidad_clientes):
             'image': 'client:latest',
             'volumes': [
                 './client/config.yaml:/config.yaml',
-                f'./data/agency-{i}.csv:/data/agency-{i}.csv:ro'
+                f'./.data/agency-{i}.csv:/data/agency-{i}.csv:ro'
             ],
             'entrypoint': '/client',
             'environment': [
