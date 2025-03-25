@@ -27,7 +27,7 @@ func NewBetLoader(filePath string) (*BetLoader, error) {
 	}, nil
 }
 
-func (bl *BetLoader) NextBatch(maxAmount int) ([]*Bet, error) {
+func (bl *BetLoader) NextBatch(maxAmount int, agencyId string) ([]*Bet, error) {
 	var batch []*Bet
 	var currentSize int
 	log.Infof("Previous to next batch loop")
@@ -43,7 +43,7 @@ func (bl *BetLoader) NextBatch(maxAmount int) ([]*Bet, error) {
 			return nil, err // error real
 		}
 		bet := &Bet{
-			agencyId:       "1", // TODO
+			agencyId:       agencyId,
 			firstName:      record[0],
 			lastName:       record[1],
 			documentNumber: record[2],
