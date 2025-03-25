@@ -75,11 +75,8 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 
 		err = betClient.SendBetBatch(batch)
 		betClient.Close()
-
 		if err != nil {
-			log.Errorf("action: send_batch | result: fail | error: %v", err)
 			continue
 		}
-		log.Info("action: send_batch | result: success")
 	}
 }

@@ -22,20 +22,24 @@ func (bc *BetClient) SendBetBatch(bets []*Bet) error {
 	var sb strings.Builder
 
 	for _, bet := range bets {
-		sb.WriteString(FormatBetMessage(bet))
+		encoded := FormatBetMessage(bet)
+		log.Infof("Writing: " + encoded)
+		sb.WriteString(encoded)
 		sb.WriteString("\n")
 	}
 
 	err := SendString(bc.conn, sb.String())
 	if err != nil {
+		log.Errorf("action: send_batch | result: fail | error: %v", err)
 		return err
 	}
 
 	err = ReceiveAck(bc.conn)
 	if err != nil {
+		log.Errorf("action: send_batch | result: fail | error: %v", err)
 		return err
 	}
-
+	log.Info("action: send_batch | result: success")
 	return nil
 }
 
