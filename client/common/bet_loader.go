@@ -8,6 +8,8 @@ import (
 	"strconv"
 )
 
+const MaxBatchSizeBytes = 8192
+
 type BetLoader struct {
 	reader *csv.Reader
 	file   *os.File
@@ -27,6 +29,7 @@ func NewBetLoader(filePath string) (*BetLoader, error) {
 
 func (bl *BetLoader) NextBatch(maxAmount int) ([]*Bet, error) {
 	var batch []*Bet
+	var currentSize int
 	for len(batch) < maxAmount {
 		record, err := bl.reader.Read()
 		if err != nil {
@@ -46,7 +49,12 @@ func (bl *BetLoader) NextBatch(maxAmount int) ([]*Bet, error) {
 			dob:            record[3],
 			number:         mustAtoi(record[4]),
 		}
+		encoded := FormatBetMessage(bet) + "\n"
+		if currentSize+len(encoded) > MaxBatchSizeBytes {
+			break
+		}
 		batch = append(batch, bet)
+		currentSize += len(encoded)
 	}
 	return batch, nil
 }
