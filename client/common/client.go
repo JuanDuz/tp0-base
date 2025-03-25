@@ -78,5 +78,6 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 		if err != nil {
 			continue
 		}
+		time.Sleep(c.config.LoopPeriod)
 	}
 }
