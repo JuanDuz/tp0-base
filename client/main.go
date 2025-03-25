@@ -120,6 +120,6 @@ func main() {
 
 	client := common.NewClient(clientConfig)
 	client.StartClientLoop(ctx)
-
+	log.Infof("action: exit | result: success")
 	os.Exit(0)
 }
