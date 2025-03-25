@@ -80,6 +80,6 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 			log.Errorf("action: send_batch | result: fail | error: %v", err)
 			continue
 		}
-		log.Errorf("action: send_batch | result: success | error: %v", err)
+		log.Info("action: send_batch | result: success")
 	}
 }
