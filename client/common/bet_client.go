@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"net"
 	"strings"
 )
@@ -18,7 +19,7 @@ func NewBetClient(config ClientConfig) (*BetClient, error) {
 	return &BetClient{conn: conn}, nil
 }
 
-func (bc *BetClient) SendBetBatch(bets []*Bet) error {
+func (c *BetClient) SendBetBatch(bets []*Bet) error {
 	var sb strings.Builder
 
 	for _, bet := range bets {
@@ -27,13 +28,13 @@ func (bc *BetClient) SendBetBatch(bets []*Bet) error {
 		sb.WriteString("\n")
 	}
 
-	err := SendString(bc.conn, sb.String())
+	err := SendString(c.conn, sb.String())
 	if err != nil {
 		log.Errorf("action: send_batch | result: fail | error: %v", err)
 		return err
 	}
 
-	err = ReceiveAck(bc.conn)
+	err = ReceiveAck(c.conn)
 	if err != nil {
 		log.Errorf("action: send_batch | result: fail | error: %v", err)
 		return err
@@ -42,10 +43,43 @@ func (bc *BetClient) SendBetBatch(bets []*Bet) error {
 	return nil
 }
 
+func (c *BetClient) GetWinners(agencyId string) ([]*Bet, error) {
+	message := fmt.Sprintf("GET_WINNERS|%s", agencyId)
+	if err := SendString(c.conn, message); err != nil {
+		return nil, fmt.Errorf("failed to send GET_WINNERS: %w", err)
+	}
+
+	bets, err := ReceiveBets(c.conn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to receive winners: %w", err)
+	}
+
+	log.Infof("action: notify_finish | result: success | agency_id: %s", agencyId)
+	return bets, nil
+}
+
+func ReceiveBets(conn net.Conn) ([]*Bet, error) {
+	response, err := ReceiveString(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(strings.TrimSpace(response), "\n")
+	var bets []*Bet
+	for _, line := range lines {
+		bet, err := ParseBetMessage(line)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse winner bet: %w", err)
+		}
+		bets = append(bets, bet)
+	}
+	return bets, nil
+}
+
 // Close closes the connection.
-func (bc *BetClient) Close() {
+func (c *BetClient) Close() {
 	log.Infof("action: close_socket | result: in_progress")
-	err := bc.conn.Close()
+	err := c.conn.Close()
 	if err != nil {
 		log.Infof("action: close_socket | result: fail")
 	}
