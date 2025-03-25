@@ -29,7 +29,7 @@ def generar_compose(archivo_salida, cantidad_clientes):
                 'volumes': [
                     './.data:/data'
                 ],
-                'entrypoint': 'unzip -o /data/dataset.zip -d /data',
+                'entrypoint': 'unzip -n /data/dataset.zip -d /data',
             }
         },
         'networks': {

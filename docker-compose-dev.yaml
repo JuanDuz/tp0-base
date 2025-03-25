@@ -14,7 +14,7 @@ services:
     image: busybox
     volumes:
       - ./.data:/data
-    entrypoint: unzip -o /data/dataset.zip -d /data
+    entrypoint: unzip -n /data/dataset.zip -d /data
   client1:
     container_name: client1
     image: client:latest
