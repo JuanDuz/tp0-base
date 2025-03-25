@@ -30,6 +30,7 @@ func NewBetLoader(filePath string) (*BetLoader, error) {
 func (bl *BetLoader) NextBatch(maxAmount int) ([]*Bet, error) {
 	var batch []*Bet
 	var currentSize int
+	log.Info("Previous to next batch loop")
 	for len(batch) < maxAmount {
 		record, err := bl.reader.Read()
 		if err != nil {
