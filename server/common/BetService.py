@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Optional
 
 from common.bet_client import BetClient
@@ -13,6 +14,7 @@ class BetService:
         self.agencies_ready: set[int] = set()
         self.winners_by_agency: dict[int, set[Bet]] = {}
         self.lottery_ended: bool = False
+        self.expected_agencies = int(os.environ.get("TOTAL_AGENCIES", "5"))
 
     def save_bets(self, bets: list[Bet]):
         store_bets(bets)
@@ -24,7 +26,7 @@ class BetService:
             return self.winners_by_agency.get(agency_id, set())
 
         self.agencies_ready.add(agency_id)
-        if len(self.agencies_ready) == 5:
+        if len(self.agencies_ready) == self.expected_agencies:
             self.__end_lottery()
 
         if self.lottery_ended:
