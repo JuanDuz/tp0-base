@@ -29,13 +29,7 @@ func NewPollWinnersUseCase(
 }
 
 func (u *pollWinnersUseCase) Execute(ctx context.Context) error {
-	for {
-		select {
-		case <-ctx.Done():
-			log.Infof("action: shutdown | result: in_progress")
-			return nil
-		default:
-		}
+	for ctx.Err() == nil {
 
 		client, err := u.clientFactory()
 		if err != nil {
@@ -65,4 +59,5 @@ func (u *pollWinnersUseCase) Execute(ctx context.Context) error {
 
 		time.Sleep(u.pollInterval)
 	}
+	return nil
 }

@@ -67,6 +67,11 @@ func (c *NetworkClient) GetWinners(agencyID string) ([]*Bet, error) {
 	return winners, nil
 }
 
-func (c *NetworkClient) Close() error {
-	return c.conn.Close()
+func (c *NetworkClient) Close() {
+	err := c.conn.Close()
+	if err != nil {
+		log.Errorf("action: close_socket | result: fail | error: %v", err)
+	} else {
+		log.Infof("action: close_socket | result: success")
+	}
 }

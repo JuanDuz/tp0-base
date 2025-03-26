@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"errors"
+	"io"
 	"time"
 )
 
@@ -35,14 +36,7 @@ func NewSendBetsUseCase(
 }
 
 func (s *sendBetsUseCase) Execute(ctx context.Context) error {
-	defer func() {
-		err := s.loader.Close()
-		if err != nil {
-			log.Errorf("action: close_csv | result: fail | error: %v", err)
-		} else {
-			log.Infof("action: close_csv | result: success")
-		}
-	}()
+	defer closeFile(s.loader)
 
 	for ctx.Err() == nil {
 
@@ -61,12 +55,8 @@ func (s *sendBetsUseCase) Execute(ctx context.Context) error {
 		}
 
 		err = client.SendBatch(batch)
-		closeErr := client.Close()
-		if closeErr != nil {
-			log.Errorf("action: close_socket | result: fail | error: %v", closeErr)
-		} else {
-			log.Infof("action: close_socket | result: success")
-		}
+		client.Close()
+
 		if err != nil {
 			log.Errorf("action: send_batch | result: fail | error: %v", err)
 			continue
@@ -87,5 +77,14 @@ func logSentBets(bets []*Bet) {
 			bet.documentNumber,
 			bet.number,
 		)
+	}
+}
+
+func closeFile(c io.Closer) {
+	err := c.Close()
+	if err != nil {
+		log.Errorf("action: close_csv | result: fail | error: %v", err)
+	} else {
+		log.Infof("action: close_csv | result: success")
 	}
 }

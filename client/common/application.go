@@ -40,11 +40,9 @@ func (a *Application) Run(ctx context.Context) error {
 	if err := a.sendBetsUseCase.Execute(ctx); err != nil {
 		return err
 	}
-
 	if err := a.pollWinnersUseCase.Execute(ctx); err != nil {
 		return err
 	}
-
 	return nil
 }
 
