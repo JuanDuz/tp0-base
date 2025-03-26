@@ -59,7 +59,6 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 		batch, err := loader.NextBatch(c.config.BatchSize, c.config.ID)
 		if err != nil {
 			if err.Error() == "EOF" {
-				log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
 				return
 			}
 			log.Errorf("action: read_batch | result: fail | error: %v", err)

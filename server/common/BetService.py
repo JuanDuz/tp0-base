@@ -11,7 +11,7 @@ from common.utils import store_bets, log_bets_stored, load_bets
 class BetService:
     def __init__(self):
         self.agencies_ready: set[str] = set()
-        self.winners: set[Bet] = set()
+        self.winners_by_agency: dict[str, set[Bet]] = {}
         self.lottery_ended: bool = False
 
     def save_bets(self, bets: list[Bet]):
@@ -21,21 +21,26 @@ class BetService:
 
     def get_winners(self, agency_id: str) -> Optional[set[Bet]]:
         if self.lottery_ended:
-            return self.winners
+            return self.winners_by_agency.get(agency_id, set())
 
         self.agencies_ready.add(agency_id)
         if len(self.agencies_ready) == 5:
-            self.__realizar_sorteo()
-            logging.info("action: consulta_ganadores | result: success | cant_ganadores: %d", len(self.winners))
-            return self.winners
+            self.__end_lottery()
+
+        if self.lottery_ended:
+            return self.winners_by_agency.get(agency_id, set())
+
         return None
 
 
-    def __realizar_sorteo(self):
+    def __end_lottery(self):
         self.lottery_ended = True
 
         for bet in load_bets():
             if has_won(bet):
-                self.winners.add(bet)
+                agency = bet.agency
+                if agency not in self.winners_by_agency:
+                    self.winners_by_agency[agency] = set()
+                self.winners_by_agency[agency].add(bet)
 
         logging.info("action: sorteo | result: success")
