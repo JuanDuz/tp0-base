@@ -2,12 +2,26 @@ package common
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"net"
 	"strconv"
 	"strings"
 )
+
+func ReceiveResponse(conn net.Conn) (string, error) {
+	msg, err := ReceiveString(conn)
+	if err != nil {
+		return "", err
+	}
+
+	if strings.HasPrefix(msg, "ERROR_") {
+		return "", mapProtocolError(msg)
+	}
+
+	return msg, nil
+}
 
 // SendString sends a message through the given connection using the protocol:
 // message_length\nmessage_body
@@ -51,7 +65,7 @@ func ReceiveString(conn net.Conn) (string, error) {
 }
 
 func ReceiveAck(conn net.Conn) error {
-	msg, err := ReceiveString(conn)
+	msg, err := ReceiveResponse(conn)
 	if err != nil {
 		return fmt.Errorf("failed to receive ACK: %w", err)
 	}
@@ -61,4 +75,21 @@ func ReceiveAck(conn net.Conn) error {
 	}
 
 	return nil
+}
+
+func mapProtocolError(msg string) error {
+	switch msg {
+	case "ERROR_LOTTERY_HASNT_ENDED":
+		return ErrLotteryNotEnded
+	case "ERROR_INVALID_AGENCY":
+		return ErrInvalidAgency
+	case "ERROR_INVALID_GET_WINNERS":
+		return ErrInvalidGetWinners
+	case "ERROR_INVALID_BATCH":
+		return ErrInvalidBatch
+	case "ERROR_EMPTY_BATCH":
+		return ErrEmptyBatch
+	default:
+		return errors.New(msg) // fallback, no tipificado
+	}
 }

@@ -121,19 +121,6 @@ func main() {
 	client := common.NewClient(clientConfig)
 	client.StartClientLoop(ctx)
 
-	betClient, err := common.NewBetClient(clientConfig)
-	if err != nil {
-		log.Criticalf("action: connect | result: fail | error: %v", err)
-	}
-	defer betClient.Close()
-
-	winners, err := betClient.GetWinners(clientConfig.ID)
-	if err != nil {
-		log.Criticalf("action: consulta_ganadores | result: fail | error: %v", err)
-	} else {
-		log.Infof("action: consulta_ganadores | result: success | cant_ganadores: %d", len(winners))
-	}
-
 	log.Infof("action: exit | result: success")
 	os.Exit(0)
 }

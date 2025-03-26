@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/op/go-logging"
@@ -53,7 +54,8 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 		if !c.doneSending {
 			c.sendNextBatch(loader)
 		} else {
-			if c.tryGetWinners() {
+			retry := c.tryGetWinners()
+			if !retry {
 				return
 			}
 		}
@@ -98,22 +100,27 @@ func (c *Client) tryGetWinners() bool {
 	var retry = true
 	err := c.withBetClient(func(betClient *BetClient) error {
 		winners, err := betClient.GetWinners(c.config.ID)
-		if err != nil {
-			switch err.Error() {
-			case "ERROR_LOTTERY_HASNT_ENDED":
-				log.Infof("action: consulta_ganadores | result: pending")
-				return nil // retry later
-			default:
-				log.Errorf("action: consulta_ganadores | result: fail | reason: %v", err)
-				return err
-			}
-		}
+		switch {
+		case err == nil:
+			log.Infof("action: consulta_ganadores | result: success | cant_ganadores: %d", len(winners))
+			retry = false
+			return nil
 
-		log.Infof("action: consulta_ganadores | result: success | cant_ganadores: %d", len(winners))
-		retry = false
-		return nil
+		case errors.Is(err, ErrLotteryNotEnded):
+			log.Infof("action: consulta_ganadores | result: pending")
+			return nil
+
+		case errors.Is(err, ErrInvalidAgency), errors.Is(err, ErrInvalidGetWinners):
+			log.Errorf("action: consulta_ganadores | result: fail | reason: %v", err)
+			return err
+
+		default:
+			log.Errorf("action: consulta_ganadores | result: fail | unexpected error: %v", err)
+			return err
+		}
 	})
 	if err != nil {
+		log.Errorf("action: consulta_ganadores | result: fail | connection error: %v", err)
 		return false
 	}
 	return retry

@@ -51,7 +51,7 @@ func (c *BetClient) GetWinners(agencyId string) ([]*Bet, error) {
 
 	bets, err := ReceiveBets(c.conn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to receive winners: %w", err)
+		return nil, err
 	}
 
 	log.Infof("action: notify_finish | result: success | agency_id: %s", agencyId)
@@ -59,7 +59,7 @@ func (c *BetClient) GetWinners(agencyId string) ([]*Bet, error) {
 }
 
 func ReceiveBets(conn net.Conn) ([]*Bet, error) {
-	response, err := ReceiveString(conn)
+	response, err := ReceiveResponse(conn)
 	if err != nil {
 		return nil, err
 	}
