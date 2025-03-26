@@ -1,10 +1,9 @@
 import logging
-from common.bet_formatter import parse_bets_from_raw_message, parse_agency_id_from_get_winners
-from common.bet_service import BetService
+from common.parser import parse_str_to_bets, parse_agency_id_from_get_winners
+from common.BetService import BetService
 from common.bet_client import BetClient
-from common.parser import parse_message_to_bets
 
-from server.common.parser import parse_bets_to_str
+from common.parser import parse_bets_to_str
 
 
 class BetController:
@@ -12,7 +11,7 @@ class BetController:
         self.service = service
 
     def save_bets(self, raw_msg: str, client: BetClient):
-        bets = parse_message_to_bets(raw_msg)
+        bets = parse_str_to_bets(raw_msg)
 
         if bets is None:
             logging.info("action: apuesta_recibida | result: fail | cantidad: 0")

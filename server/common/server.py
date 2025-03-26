@@ -8,9 +8,9 @@ from common.utils import store_bets, log_bets_stored
 
 from common.utils import Bet
 
-from server.common.BetController import BetController
-from server.common.BetService import BetService
-from server.common.MessageHandler import MessageHandler
+from common.BetController import BetController
+from common.BetService import BetService
+from common.MessageHandler import MessageHandler
 
 
 class Server:

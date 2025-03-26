@@ -1,4 +1,3 @@
-from common.bet_formatter import parse_bet_message
 from common.bet_protocol import receive_string, send_string
 
 from common.utils import Bet

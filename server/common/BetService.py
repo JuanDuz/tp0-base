@@ -3,7 +3,6 @@ from typing import Optional
 
 from common.bet_client import BetClient
 
-from common.parser import parse_message_to_bets
 from common.utils import Bet
 from common.utils import has_won
 from common.utils import store_bets, log_bets_stored, load_bets
