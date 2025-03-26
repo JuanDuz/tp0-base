@@ -64,7 +64,12 @@ func ReceiveBets(conn net.Conn) ([]*Bet, error) {
 		return nil, err
 	}
 
-	lines := strings.Split(strings.TrimSpace(response), "\n")
+	response = strings.TrimSpace(response)
+	if response == "" {
+		return []*Bet{}, nil
+	}
+
+	lines := strings.Split(response, "\n")
 	var bets []*Bet
 	for _, line := range lines {
 		bet, err := ParseBetMessage(line)

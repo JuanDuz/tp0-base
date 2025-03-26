@@ -30,13 +30,11 @@ class BetController:
         agency_id = parse_agency_id_from_get_winners(raw_msg)
 
         if agency_id is None:
-            logging.info("action: consulta_ganadores | result: fail | reason: ERROR_INVALID_GET_WINNERS")
             client.send_error("ERROR_INVALID_GET_WINNERS")
             return
 
         winner_bets = self.service.get_winners(agency_id)
         if winner_bets is None:
-            logging.info("action: consulta_ganadores | result: fail | reason: ERROR_LOTTERY_HASNT_ENDED")
             client.send_error("ERROR_LOTTERY_HASNT_ENDED")
         else:
             client.send_message(parse_bets_to_str(winner_bets))

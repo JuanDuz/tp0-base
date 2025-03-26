@@ -5,9 +5,7 @@ import sys
 
 from common.bet_client import BetClient
 from common.utils import store_bets, log_bets_stored
-
 from common.utils import Bet
-
 from common.BetController import BetController
 from common.BetService import BetService
 from common.MessageHandler import MessageHandler
@@ -50,9 +48,7 @@ class Server:
             logging.error("action: receive_message | result: fail | error: %s", e)
 
         finally:
-            logging.info("action: close_client_socket | result: in_progress")
             client_sock.close()
-            logging.info("action: close_client_socket | result: success")
 
 
     def __accept_new_connection(self):

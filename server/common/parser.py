@@ -4,9 +4,9 @@ from common.utils import Bet
 
 
 def parse_bet_to_str(bet):
-    return f"{bet.first_name}|{bet.last_name}|{bet.document_number}|{bet.dob}|{bet.number}|{bet.agency}"
+    return f"{bet.first_name}|{bet.last_name}|{bet.document}|{bet.birthdate}|{bet.number}|{bet.agency}"
 
-def parse_bets_to_str(bets: list[Bet]) -> str:
+def parse_bets_to_str(bets: set[Bet]) -> str:
     return "\n".join(parse_bet_to_str(bet) for bet in bets)
 
 def _parse_str_to_bet(raw_bet):
@@ -30,11 +30,11 @@ def parse_str_to_bets(raw_msg: str) -> list[Bet]:
         bets.append(bet)
     return bets
 
-def parse_agency_id_from_get_winners(raw_msg: str) -> Optional[str]:
+def parse_agency_id_from_get_winners(raw_msg: str) -> Optional[int]:
     try:
         parts = raw_msg.strip().split("|")
         if len(parts) != 2 or parts[0] != "GET_WINNERS":
             return None
-        return parts[1]
+        return int(parts[1])
     except Exception:
         return None
