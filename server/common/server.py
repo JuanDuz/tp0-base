@@ -8,6 +8,10 @@ from common.utils import store_bets, log_bets_stored
 
 from common.utils import Bet
 
+from server.common.BetController import BetController
+from server.common.BetService import BetService
+from server.common.MessageHandler import MessageHandler
+
 
 class Server:
     def __init__(self, port, listen_backlog):
@@ -16,6 +20,8 @@ class Server:
         self._server_socket.bind(('', port))
         self._server_socket.listen(listen_backlog)
         self.was_killed = False
+        self.agencies_ready = set()
+        self.message_handler = MessageHandler(BetController(BetService()))
         signal.signal(signal.SIGTERM, self.graceful_shutdown)
         signal.signal(signal.SIGINT, self.graceful_shutdown)
 
@@ -35,40 +41,19 @@ class Server:
                 self.__handle_client_connection(client_sock)
 
     def __handle_client_connection(self, client_sock):
-        """
-        Read message from a specific client socket and closes the socket
-
-        If a problem arises in the communication with the client, the
-        client socket will also be closed
-        """
         try:
-            bet_client: BetClient = BetClient(client_sock)
-            try:
-                bets: list[Bet] = bet_client.receive_bets()
-                logging.info("Received bets: {}".format(bets))
-            except ValueError as e:
-                logging.info("action: apuesta_recibida | result: fail | cantidad: 0")
-                bet_client.send_error("ERROR_INVALID_BATCH")
-                return
-
-            if not bets:
-                logging.info("action: apuesta_recibida | result: fail | cantidad: 0")
-                bet_client.send_error("ERROR_EMPTY_BATCH")
-                return
-
-            logging.info("Before store_bets")
-            store_bets(bets)
-            logging.info("After store_bets")
-            log_bets_stored(bets)
-            logging.info(f"action: apuesta_recibida | result: success | cantidad: {len(bets)}")
-            bet_client.send_ack()
+            bet_client = BetClient(client_sock)
+            raw_msg = bet_client.receive_message()
+            self.message_handler.handle(raw_msg, bet_client)
 
         except OSError as e:
-            logging.error("action: receive_message | result: fail | error: {e}")
+            logging.error("action: receive_message | result: fail | error: %s", e)
+
         finally:
             logging.info("action: close_client_socket | result: in_progress")
             client_sock.close()
             logging.info("action: close_client_socket | result: success")
+
 
     def __accept_new_connection(self):
         """
