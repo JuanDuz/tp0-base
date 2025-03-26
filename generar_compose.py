@@ -18,7 +18,8 @@ def generar_compose(archivo_salida, cantidad_clientes):
                 ],
                 'entrypoint': 'python3 /main.py',
                 'environment': [
-                    'PYTHONUNBUFFERED=1'
+                    'PYTHONUNBUFFERED=1',
+                    f'TOTAL_AGENCIES={cantidad_clientes}',
                 ],
                 'networks': [
                     'testing_net'
