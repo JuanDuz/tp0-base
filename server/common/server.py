@@ -52,29 +52,22 @@ class Server:
 
 
     def __accept_new_connection(self):
-        """
-        Accept new connections
-
-        Function blocks until a connection to a client is made.
-        Then connection created is printed and returned
-        """
-
-        # Connection arrived
         logging.info('action: accept_connections | result: in_progress')
+        c = None
         try:
             c, addr = self._server_socket.accept()
             logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
         except OSError as e:
-            if self.was_killed:
-                logging.info(f"action: client_socket_closed_by_acceptor_socket | result : success")
-            else:
-                self._server_socket.close()
+            logging.error("action: accept_connections | result: fail | error: %s", e)
         return c
-    
+
     def stop(self):
         logging.info("action: close_socket | result: in_progress")
         self.was_killed = True
-        self._server_socket.close()
+        try:
+            self._server_socket.close()
+        except OSError as e:
+            logging.warning("action: close_socket | result: already closed | error: %s", e)
         logging.info("action: close_socket | result: success")
 
     def graceful_shutdown(self, signum, frame):

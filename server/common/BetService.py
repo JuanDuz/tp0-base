@@ -46,5 +46,4 @@ class BetService:
                     self.winners_by_agency[agency] = set()
                 self.winners_by_agency[agency].add(bet)
 
-
         logging.info("action: sorteo | result: success")

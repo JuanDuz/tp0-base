@@ -8,4 +8,5 @@ var (
 	ErrInvalidGetWinners = errors.New("invalid get winners request")
 	ErrInvalidBatch      = errors.New("invalid batch format")
 	ErrEmptyBatch        = errors.New("empty batch received")
+	ErrEOF               = errors.New("EOF")
 )

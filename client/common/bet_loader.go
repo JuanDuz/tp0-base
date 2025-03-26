@@ -10,24 +10,31 @@ import (
 
 const MaxBatchSizeBytes = 8192
 
-type BetLoader struct {
-	reader *csv.Reader
-	file   *os.File
+type BetLoader interface {
+	NextBatch(max int, agencyId string) ([]*Bet, error)
+	Close() error
 }
 
-func NewBetLoader(filePath string) (*BetLoader, error) {
-	file, err := os.Open(filePath)
+type BetCsvLoader struct {
+	file     *os.File
+	reader   *csv.Reader
+	clientID string
+}
+
+func NewBetCsvLoader(filePath string, clientID string) (*BetCsvLoader, error) {
+	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
 
-	return &BetLoader{
-		reader: csv.NewReader(file),
-		file:   file,
+	return &BetCsvLoader{
+		file:     f,
+		reader:   csv.NewReader(f),
+		clientID: clientID,
 	}, nil
 }
 
-func (bl *BetLoader) NextBatch(maxAmount int, agencyId string) ([]*Bet, error) {
+func (bl *BetCsvLoader) NextBatch(maxAmount int, agencyId string) ([]*Bet, error) {
 	var batch []*Bet
 	var currentSize int
 	for len(batch) < maxAmount {
@@ -37,7 +44,7 @@ func (bl *BetLoader) NextBatch(maxAmount int, agencyId string) ([]*Bet, error) {
 				if len(batch) > 0 {
 					return batch, nil // último batch, incompleto pero válido
 				}
-				return nil, err // no hay más apuestas
+				return nil, ErrEOF // no hay más apuestas
 			}
 			return nil, err // error real
 		}
@@ -59,7 +66,7 @@ func (bl *BetLoader) NextBatch(maxAmount int, agencyId string) ([]*Bet, error) {
 	return batch, nil
 }
 
-func (bl *BetLoader) Close() error {
+func (bl *BetCsvLoader) Close() error {
 	return bl.file.Close()
 }
 

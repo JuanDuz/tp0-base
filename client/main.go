@@ -94,32 +94,50 @@ func PrintConfig(v *viper.Viper) {
 	)
 }
 
-func main() {
+func createConfig() (common.Config, error) {
 	v, err := InitConfig()
 	if err != nil {
-		log.Criticalf("%s", err)
+		return common.Config{}, fmt.Errorf("init config: %w", err)
 	}
 
 	if err := InitLogger(v.GetString("log.level")); err != nil {
 		log.Criticalf("%s", err)
+		return common.Config{}, fmt.Errorf("init logger: %w", err)
 	}
 
-	// Print program config with debugging purposes
 	PrintConfig(v)
 
-	clientConfig := common.ClientConfig{
-		ServerAddress: v.GetString("server.address"),
-		ID:            v.GetString("id"),
-		LoopAmount:    v.GetInt("loop.amount"),
-		LoopPeriod:    v.GetDuration("loop.period"),
-		BatchSize:     v.GetInt("batch.maxAmount"),
-	}
+	return common.Config{
+		ServerAddr:   v.GetString("server.address"),
+		ClientID:     v.GetString("id"),
+		LoopDelay:    v.GetDuration("loop.period"),
+		MaxPerBatch:  v.GetInt("batch.maxAmount"),
+		DataFilePath: "/data/agency-" + v.GetString("id") + ".csv",
+	}, nil
+}
 
+func runApp(ctx context.Context, cfg common.Config) error {
+	app, err := common.NewApplication(cfg)
+	if err != nil {
+		return fmt.Errorf("create app: %w", err)
+	}
+	return app.Run(ctx)
+}
+
+func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
 
-	client := common.NewClient(clientConfig)
-	client.StartClientLoop(ctx)
+	config, err := createConfig()
+	if err != nil {
+		log.Criticalf("action: init | result: fail | error: %v", err)
+		os.Exit(1)
+	}
+
+	if err := runApp(ctx, config); err != nil {
+		log.Errorf("action: exit | result: fail | error: %v", err)
+		os.Exit(1)
+	}
 
 	os.Exit(0)
 }
