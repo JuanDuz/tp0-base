@@ -44,21 +44,13 @@ func (s *sendBetsUseCase) Execute(ctx context.Context) error {
 		}
 	}()
 
-	for {
-		select {
-		case <-ctx.Done():
-			log.Infof("action: shutdown | result: in_progress")
-			return nil
-		default:
-		}
+	for ctx.Err() == nil {
 
 		batch, err := s.loader.NextBatch(s.maxPerBatch, s.clientID)
 		if errors.Is(err, ErrEOF) {
-			log.Infof("action: send_bets | result: done | reason: all bets sent")
 			return nil
 		}
 		if err != nil {
-			log.Errorf("action: read_batch | result: fail | error: %v", err)
 			continue
 		}
 
@@ -85,6 +77,7 @@ func (s *sendBetsUseCase) Execute(ctx context.Context) error {
 		log.Infof("action: send_batch | result: success | amount: %d", len(batch))
 		time.Sleep(s.loopDelay)
 	}
+	return nil
 }
 
 func logSentBets(bets []*Bet) {
