@@ -107,7 +107,7 @@ func (c *Client) tryGetWinners() bool {
 			return nil
 
 		case errors.Is(err, ErrLotteryNotEnded):
-			log.Infof("action: consulta_ganadores | result: pending")
+			log.Infof("action: consulta_ganadores | result: in_progress")
 			return nil
 
 		case errors.Is(err, ErrInvalidAgency), errors.Is(err, ErrInvalidGetWinners):
