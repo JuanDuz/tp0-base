@@ -11,11 +11,6 @@ services:
       - TOTAL_AGENCIES=5
     networks:
       - testing_net
-  unzipper:
-    image: busybox
-    volumes:
-      - ./.data:/data
-    entrypoint: unzip -n /data/dataset.zip -d /data
   client1:
     container_name: client1
     image: client:latest
@@ -29,7 +24,6 @@ services:
       - testing_net
     depends_on:
       - server
-      - unzipper
   client2:
     container_name: client2
     image: client:latest
@@ -43,7 +37,6 @@ services:
       - testing_net
     depends_on:
       - server
-      - unzipper
   client3:
     container_name: client3
     image: client:latest
@@ -57,7 +50,6 @@ services:
       - testing_net
     depends_on:
       - server
-      - unzipper
   client4:
     container_name: client4
     image: client:latest
@@ -71,7 +63,6 @@ services:
       - testing_net
     depends_on:
       - server
-      - unzipper
   client5:
     container_name: client5
     image: client:latest
@@ -85,7 +76,6 @@ services:
       - testing_net
     depends_on:
       - server
-      - unzipper
 networks:
   testing_net:
     ipam:
