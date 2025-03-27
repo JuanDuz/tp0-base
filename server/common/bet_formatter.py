@@ -18,3 +18,11 @@ def parse_bet_message(message):
         birthdate=fields[3],
         number=fields[4],
     )
+
+def parse_str_to_bets(raw_msg: str) -> list[Bet]:
+    lines = raw_msg.strip().split('\n')
+    bets = []
+    for line in lines:
+        bet = _parse_str_to_bet(line)
+        bets.append(bet)
+    return bets
