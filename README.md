@@ -1,53 +1,51 @@
-### Ejercicio N°7:
+## 🧵 Ejercicio 8 
 
-En este ejercicio se aprovecho y se hizo un refactor en cliente y servidor para apuntar a una arcitectura CLEAN
+### ✅ Objetivo
 
-### Lado del Servidor
-#### Arquitectura
-Utilizamos una arquitectura tipo Clean Architecture que separa responsabilidades en capas:
+El objetivo de este ejercicio fue adaptar el servidor implementado en Python para que sea capaz de manejar múltiples conexiones de manera concurrente, garantizando la **consistencia de los datos** y evitando **condiciones de carrera**.
 
-- MessageHandler: router de mensajes que delega según el tipo.
+---
 
-- BetController: parsea, valida y responde con errores del protocolo.
+### ⚙️ Solución implementada
 
-- BetService: maneja la lógica de dominio (almacenamiento, sorteo, cálculo de ganadores).
+#### 🧠 Modelo de concurrencia
 
-#### Lógica del sorteo
-El servidor guarda los IDs de las agencias que notificaron finalización.
+Cada conexión entrante desde una agencia se maneja en un **proceso independiente** utilizando el módulo `multiprocessing`. Esto permite que múltiples agencias interactúen simultáneamente con el servidor sin bloquearse entre sí.
 
-Una vez que se notifican las N agencias activas (obtenidas dinámicamente desde el entorno en tiempo de ejecución), se realiza el sorteo:
+#### 📌 Estado compartido
 
-1. Se invoca load_bets() para cargar todas las apuestas.
+Como los procesos no comparten memoria por defecto, se utilizó `multiprocessing.Manager()` para crear estructuras de datos **compartidas entre procesos**:
 
-2. Se filtran las apuestas ganadoras con has_won(...).
+- `agencies_ready`: lista compartida para registrar qué agencias solicitaron los resultados.
+- `winners`: lista compartida que contiene todas las apuestas ganadoras.
+- `lottery_ended`: valor booleano compartido que indica si el sorteo ya fue realizado.
 
-3. Se almacenan los ganadores en un diccionario por agencia.
+#### 🔒 Secciones críticas
 
-#### Consulta de ganadores
-Antes del sorteo, el servidor responde con ERROR_LOTTERY_HASNT_ENDED.
+Para evitar **condiciones de carrera** al acceder/modificar estas estructuras compartidas, se utilizó un **`Lock`** también generado con el `Manager`. Este lock protege las siguientes operaciones:
 
-Luego del sorteo, cada consulta se responde únicamente con los ganadores de la agencia correspondiente, respetando el requerimiento de no realizar broadcast.
+- Verificación y modificación de `agencies_ready`.
+- Sorteo de los ganadores (`__draw_lottery`).
+- Lectura de resultados si el sorteo ya fue ejecutado.
 
+#### 📁 Acceso al archivo de apuestas
 
-### Lado del Cliente
-#### Arquitectura
+El acceso concurrente al archivo donde se almacenan las apuestas (`bets.csv`) se protege con un **monitor** llamado `BetsFileMonitor`, que encapsula las operaciones de lectura y escritura utilizando un `Lock` propio.
 
-- Application: punto de entrada, realiza la orquestación e inyección de dependencias.
-- SendBetsUseCase: se encarga del envío en batches respetando el límite de 8KB y el maxAmount pasado por config.
-- PollWinnersUseCase: consulta periódicamente los ganadores hasta obtener respuesta exitosa. Respetando el loopTime pasado por config
-- NetworkClient: maneja las conexiones TCP y el protocolo de comunicación.
+---
 
-#### Flujo de ejecución
-1. El cliente carga sus apuestas desde el archivo CSV y las envía por batches.
-2. Al alcanzar el final del archivo, notifica automáticamente al servidor.
-3. Luego entra en modo "polling" hasta que el sorteo se haya realizado.
-4. Una vez recibe la lista de ganadores, loguea la cantidad de winners que obtuvo
+### 🧪 Resultado
 
-### Protocolos y Validaciones
-El cliente y servidor usan un protocolo de mensajes con ```length\nmessage_body```
+- Se garantiza que el sorteo solo se realiza una vez, exactamente cuando todas las agencias han solicitado los resultados.
+- Los ganadores son almacenados de forma compartida y accesibles por cualquier conexión futura.
+- Se evita la corrupción del archivo o duplicación de apuestas.
+- Todos los procesos terminan correctamente y el servidor finaliza cuando ya no quedan procesos vivos.
 
-Se validan errores como:
+---
 
-- Consulta antes del sorteo.
-- Agencia inválida.
-- Consulta malformada.
+### 🔮 Futuras mejoras
+
+- Mantener una **única conexión TCP por cliente** en lugar de abrir una nueva por cada mensaje. Esto evitaría la creación y destrucción de procesos para cada conexión.
+- **Cerrar el cliente automáticamente** una vez que recibe la respuesta con los ganadores.
+- Al cerrar todos los sockets de los clientes, se podría detectar esta condición y finalizar automáticamente el servidor.
+
