@@ -23,13 +23,6 @@ def generar_compose(archivo_salida, cantidad_clientes):
                 'networks': [
                     'testing_net'
                 ]
-            },
-            'unzipper': {
-                'image': 'busybox',
-                'volumes': [
-                    './.data:/data'
-                ],
-                'entrypoint': 'unzip -n /data/dataset.zip -d /data',
             }
         },
         'networks': {
@@ -60,8 +53,7 @@ def generar_compose(archivo_salida, cantidad_clientes):
                 'testing_net'
             ],
             'depends_on': [
-                'server',
-                'unzipper'
+                'server'
             ]
         }
 

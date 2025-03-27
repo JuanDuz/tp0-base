@@ -44,8 +44,8 @@ class Server:
         try:
             bet_client: BetClient = BetClient(client_sock)
             try:
+                raw_msg = bet_client.receive_message()
                 bets: list[Bet] = bet_client.receive_bets()
-                logging.info("Received bets: {}".format(bets))
             except ValueError as e:
                 logging.info("action: apuesta_recibida | result: fail | cantidad: 0")
                 bet_client.send_error("ERROR_INVALID_BATCH")

@@ -10,11 +10,6 @@ services:
       - PYTHONUNBUFFERED=1
     networks:
       - testing_net
-  unzipper:
-    image: busybox
-    volumes:
-      - ./.data:/data
-    entrypoint: unzip -n /data/dataset.zip -d /data
   client1:
     container_name: client1
     image: client:latest
@@ -28,7 +23,6 @@ services:
       - testing_net
     depends_on:
       - server
-      - unzipper
 networks:
   testing_net:
     ipam:
