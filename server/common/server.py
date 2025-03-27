@@ -45,6 +45,21 @@ class Server:
             bet_client: BetClient = BetClient(client_sock)
             try:
                 raw_msg = bet_client.receive_message()
+
+                bets = parse_str_to_bets(raw_msg)
+
+                if bets is None:
+                    logging.info("action: apuesta_recibida | result: fail | cantidad: 0")
+                    bet_client.send_error("ERROR_INVALID_BATCH")
+                    return
+
+                if len(bets) == 0:
+                    logging.info("action: apuesta_recibida | result: fail | cantidad: 0")
+                    bet_client.send_error("ERROR_EMPTY_BATCH")
+                    return
+
+                self.service.save_bets(bets)
+                bet_client.send_ack()
                 bets: list[Bet] = bet_client.receive_bets()
             except ValueError as e:
                 logging.info("action: apuesta_recibida | result: fail | cantidad: 0")
