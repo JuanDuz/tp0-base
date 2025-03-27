@@ -1,5 +1,13 @@
 ## 🧵 Ejercicio 8 
 
+### Importante
+Correr
+```
+./generar-compose.sh docker-compose-dev.yaml
+```
+hace unzip de los datasets, requerido para levantar los dockers, ya que si no no existiran los csv
+
+
 ### ✅ Objetivo
 
 El objetivo de este ejercicio fue adaptar el servidor implementado en Python para que sea capaz de manejar múltiples conexiones de manera concurrente, garantizando la **consistencia de los datos** y evitando **condiciones de carrera**.
