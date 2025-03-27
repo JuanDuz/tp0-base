@@ -28,7 +28,7 @@ class BetService:
         log_bets_stored(bets)
         logging.info(f"action: apuesta_recibida | result: success | cantidad: {len(bets)}")
 
-    def get_winners(self, agency_id: int) -> Optional[set[Bet]]:
+    def get_winners(self, agency_id: int) -> Optional[list[Bet]]:
         with self._lock:
             if self.lottery_ended.value:
                 return self._get_winners_by_agency_id(agency_id)
@@ -36,7 +36,7 @@ class BetService:
             if agency_id not in self.agencies_ready:
                 self.agencies_ready.append(agency_id)
 
-            if len(set(self.agencies_ready)) == self.expected_agencies:
+            if len(self.agencies_ready) == self.expected_agencies:
                 self.__draw_lottery()
 
             if self.lottery_ended.value:

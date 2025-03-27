@@ -1,6 +1,8 @@
+
 def send_string(sock, message):
-    length = str(len(message)) + "\n"
-    sock.sendall(length.encode('utf-8') + message.encode('utf-8'))
+    length = str(len(message.encode('utf-8'))) + "\n"
+    encoded = length.encode('utf-8') + message.encode('utf-8')
+    sock.sendall(encoded)
 
 
 def receive_string(sock):

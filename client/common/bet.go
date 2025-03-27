@@ -6,5 +6,5 @@ type Bet struct {
 	documentNumber string
 	dob            string
 	number         int
-	agencyId       string
+	agencyId       int
 }

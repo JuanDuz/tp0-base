@@ -85,7 +85,7 @@ func InitLogger(logLevel string) error {
 // For debugging purposes only
 func PrintConfig(v *viper.Viper) {
 	log.Infof("action: config | result: success | client_id: %s | server_address: %s | loop_amount: %v | loop_period: %v | log_level: %s, | batchSize: %v",
-		v.GetString("id"),
+		v.GetInt("id"),
 		v.GetString("server.address"),
 		v.GetInt("loop.amount"),
 		v.GetDuration("loop.period"),
@@ -109,7 +109,7 @@ func createConfig() (common.Config, error) {
 
 	return common.Config{
 		ServerAddr:   v.GetString("server.address"),
-		ClientID:     v.GetString("id"),
+		ClientID:     v.GetInt("id"),
 		LoopDelay:    v.GetDuration("loop.period"),
 		MaxPerBatch:  v.GetInt("batch.maxAmount"),
 		DataFilePath: "/data/agency-" + v.GetString("id") + ".csv",

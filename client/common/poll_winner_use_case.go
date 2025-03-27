@@ -12,13 +12,13 @@ type PollWinnersUseCase interface {
 
 type pollWinnersUseCase struct {
 	clientFactory func() (*NetworkClient, error)
-	clientId      string
+	clientId      int
 	pollInterval  time.Duration
 }
 
 func NewPollWinnersUseCase(
 	clientFactory func() (*NetworkClient, error),
-	clientID string,
+	clientID int,
 	pollInterval time.Duration,
 ) PollWinnersUseCase {
 	return &pollWinnersUseCase{

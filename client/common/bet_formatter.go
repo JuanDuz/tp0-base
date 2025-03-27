@@ -8,7 +8,7 @@ import (
 
 // FormatBetMessage formats a bet as a string separated by '|'.
 func FormatBetMessage(bet *Bet) string {
-	return fmt.Sprintf("%s|%s|%s|%s|%d|%s",
+	return fmt.Sprintf("%s|%s|%s|%s|%d|%d",
 		bet.firstName,
 		bet.lastName,
 		bet.documentNumber,
@@ -29,12 +29,17 @@ func ParseBetMessage(msg string) (*Bet, error) {
 		return nil, fmt.Errorf("invalid number field: %w", err)
 	}
 
+	agencyId, err := strconv.Atoi(fields[5])
+	if err != nil {
+		return nil, fmt.Errorf("invalid agency id field: %w", err)
+	}
+
 	return &Bet{
 		firstName:      fields[0],
 		lastName:       fields[1],
 		documentNumber: fields[2],
 		dob:            fields[3],
 		number:         number,
-		agencyId:       fields[5],
+		agencyId:       agencyId,
 	}, nil
 }

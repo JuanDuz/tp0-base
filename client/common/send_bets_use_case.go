@@ -14,7 +14,7 @@ type SendBetsUseCase interface {
 type sendBetsUseCase struct {
 	loader        BetLoader
 	clientFactory func() (*NetworkClient, error)
-	clientID      string
+	clientID      int
 	maxPerBatch   int
 	loopDelay     time.Duration
 }
@@ -22,7 +22,7 @@ type sendBetsUseCase struct {
 func NewSendBetsUseCase(
 	loader BetLoader,
 	clientFactory func() (*NetworkClient, error),
-	clientID string,
+	clientID int,
 	maxPerBatch int,
 	loopDelay time.Duration,
 ) SendBetsUseCase {

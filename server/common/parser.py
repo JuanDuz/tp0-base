@@ -6,7 +6,7 @@ from common.utils import Bet
 def parse_bet_to_str(bet):
     return f"{bet.first_name}|{bet.last_name}|{bet.document}|{bet.birthdate}|{bet.number}|{bet.agency}"
 
-def parse_bets_to_str(bets: set[Bet]) -> str:
+def parse_bets_to_str(bets: list[Bet]) -> str:
     return "\n".join(parse_bet_to_str(bet) for bet in bets)
 
 def _parse_str_to_bet(raw_bet):

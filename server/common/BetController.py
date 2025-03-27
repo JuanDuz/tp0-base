@@ -14,7 +14,6 @@ class BetController:
 
     def save_bets(self, raw_msg: str, client: NetworkClient):
         bets = parse_str_to_bets(raw_msg)
-
         if bets is None:
             logging.info("action: apuesta_recibida | result: fail | cantidad: 0")
             client.send_error("ERROR_INVALID_BATCH")
@@ -39,4 +38,5 @@ class BetController:
         if winner_bets is None:
             client.send_error("ERROR_LOTTERY_HASNT_ENDED")
         else:
-            client.send_message(parse_bets_to_str(winner_bets))
+            message = parse_bets_to_str(winner_bets)
+            client.send_message(message)

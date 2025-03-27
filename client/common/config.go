@@ -3,7 +3,7 @@ package common
 import "time"
 
 type Config struct {
-	ClientID     string
+	ClientID     int
 	ServerAddr   string
 	LoopDelay    time.Duration
 	MaxPerBatch  int

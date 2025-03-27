@@ -38,8 +38,8 @@ func (c *NetworkClient) SendBatch(bets []*Bet) error {
 	return nil
 }
 
-func (c *NetworkClient) GetWinners(agencyID string) ([]*Bet, error) {
-	msg := fmt.Sprintf("GET_WINNERS|%s", agencyID)
+func (c *NetworkClient) GetWinners(agencyID int) ([]*Bet, error) {
+	msg := fmt.Sprintf("GET_WINNERS|%d", agencyID)
 	if err := SendString(c.conn, msg); err != nil {
 		return nil, fmt.Errorf("failed to send GET_WINNERS: %w", err)
 	}

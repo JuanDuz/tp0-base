@@ -11,17 +11,17 @@ import (
 const MaxBatchSizeBytes = 8192
 
 type BetLoader interface {
-	NextBatch(max int, agencyId string) ([]*Bet, error)
+	NextBatch(max int, agencyId int) ([]*Bet, error)
 	Close() error
 }
 
 type BetCsvLoader struct {
 	file     *os.File
 	reader   *csv.Reader
-	clientID string
+	clientID int
 }
 
-func NewBetCsvLoader(filePath string, clientID string) (*BetCsvLoader, error) {
+func NewBetCsvLoader(filePath string, clientID int) (*BetCsvLoader, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
@@ -34,7 +34,7 @@ func NewBetCsvLoader(filePath string, clientID string) (*BetCsvLoader, error) {
 	}, nil
 }
 
-func (bl *BetCsvLoader) NextBatch(maxAmount int, agencyId string) ([]*Bet, error) {
+func (bl *BetCsvLoader) NextBatch(maxAmount int, agencyId int) ([]*Bet, error) {
 	var batch []*Bet
 	var currentSize int
 	for len(batch) < maxAmount {
