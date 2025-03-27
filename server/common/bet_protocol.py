@@ -1,8 +1,13 @@
+import logging
+
 
 def send_string(sock, message):
     length = str(len(message.encode('utf-8'))) + "\n"
     encoded = length.encode('utf-8') + message.encode('utf-8')
-    sock.sendall(encoded)
+    try:
+        sock.sendall(encoded)
+    except Exception as e:
+        logging.error("error sending message | error: %s | message: %s", e, repr(message))
 
 
 def receive_string(sock):
