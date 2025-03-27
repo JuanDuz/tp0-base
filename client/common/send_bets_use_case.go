@@ -58,13 +58,13 @@ func (s *sendBetsUseCase) Execute(ctx context.Context) error {
 		client.Close()
 
 		if err != nil {
-			log.Errorf("action: send_batch | result: fail | error: %v", err)
+			// log.Errorf("action: send_batch | result: fail | error: %v", err)
 			continue
 		}
 
 		logSentBets(batch)
 
-		log.Infof("action: send_batch | result: success | amount: %d", len(batch))
+		// log.Infof("action: send_batch | result: success | amount: %d", len(batch))
 		time.Sleep(s.loopDelay)
 	}
 	return nil
