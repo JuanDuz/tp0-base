@@ -23,7 +23,7 @@ class Client:
                 self.message_handler.handle(raw_msg, self.network_client)
 
         except OSError as e:
-            logging.error("")
+            pass
             # logging.error("action: receive_message | result: fail | error: %s", e)
 
         finally:
@@ -35,4 +35,4 @@ class Client:
     def stop(self):
         self.was_killed = True
         self.network_client.close()
-        logging.error("action: closing_client_socket | result: success")
+        logging.info("action: closing_client_socket | result: success")

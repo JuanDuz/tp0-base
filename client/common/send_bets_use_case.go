@@ -83,8 +83,8 @@ func logSentBets(bets []*Bet) {
 func closeFile(c io.Closer) {
 	err := c.Close()
 	if err != nil {
-		log.Errorf("action: close_csv | result: fail | error: %v", err)
+		// log.Errorf("action: close_csv | result: fail | error: %v", err)
 	} else {
-		log.Infof("action: close_csv | result: success")
+		// log.Infof("action: close_csv | result: success")
 	}
 }

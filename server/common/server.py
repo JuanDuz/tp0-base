@@ -114,7 +114,7 @@ class Server:
         for p in self._processes:
             if not p.is_alive():
                 p.join()
-                logging.info("action: process_cleaned | result: success")
+                # logging.info("action: process_cleaned | result: success")
             else:
                 alive.append(p)
         self._processes = alive
