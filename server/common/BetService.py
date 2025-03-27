@@ -26,22 +26,16 @@ class BetService:
     def save_bets(self, bets: list[Bet]):
         self.bets_file_monitor.safe_store_bets(bets)
         log_bets_stored(bets)
-        logging.info(f"action: apuesta_recibida | result: success | cantidad: {len(bets)}")
 
     def get_winners(self, agency_id: int) -> Optional[set[Bet]]:
         with self._lock:
-            logging.info(f"action: get_winners | agency_id: {agency_id}")
             if self.lottery_ended.value:
-                logging.info(f"action: loterry_was_ended_so_return_winners | winners: {self._get_winners_by_agency_id(agency_id)}")
                 return self._get_winners_by_agency_id(agency_id)
 
             if agency_id not in self.agencies_ready:
                 self.agencies_ready.append(agency_id)
-                logging.info(f"action: added_agency_to_ready | agency_id: {agency_id}")
 
-            logging.info(f"action: agencies ready | amount: {len(set(self.agencies_ready))}")
             if len(set(self.agencies_ready)) == self.expected_agencies:
-                logging.info(f"action: all_agencies_ready | agencies_ready_amount: {len(set(self.agencies_ready))} | expected_agencies: {self.expected_agencies}")
                 self.__draw_lottery()
 
             if self.lottery_ended.value:
@@ -49,7 +43,6 @@ class BetService:
             return None
 
     def __draw_lottery(self):
-        logging.info(f"action: draw_lottery | result: success")
         self.lottery_ended.value = True
 
         for bet in self.bets_file_monitor.safe_load_bets():
