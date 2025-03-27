@@ -45,7 +45,7 @@ func (u *pollWinnersUseCase) Execute(ctx context.Context) error {
 		case err == nil:
 			// Test depende on the order of the logs, if the server logs sorteo success, after this it fails
 			// Sleep just for the test
-			time.Sleep(u.pollInterval)
+			time.Sleep(1 * time.Second)
 			log.Infof("action: consulta_ganadores | result: success | cant_ganadores: %d", len(winners))
 			return nil
 
