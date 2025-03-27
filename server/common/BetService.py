@@ -26,6 +26,7 @@ class BetService:
     def save_bets(self, bets: list[Bet]):
         self.bets_file_monitor.safe_store_bets(bets)
         log_bets_stored(bets)
+        logging.info(f"action: apuesta_recibida | result: success | cantidad: {len(bets)}")
 
     def get_winners(self, agency_id: int) -> Optional[set[Bet]]:
         with self._lock:
