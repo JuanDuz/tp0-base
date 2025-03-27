@@ -51,10 +51,10 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 		return
 	}
 	bet := &Bet{
-		firstName:      os.Getenv("NOMBRE"),
-		lastName:       os.Getenv("APELLIDO"),
-		documentNumber: os.Getenv("DOCUMENTO"),
-		dob:            os.Getenv("NACIMIENTO"),
+		firstName:      getEnvOrDefault("NOMBRE", "NOMBRE"),
+		lastName:       getEnvOrDefault("APELLIDO", "APELLIDO"),
+		documentNumber: getEnvOrDefault("DOCUMENTO", "42999"),
+		dob:            getEnvOrDefault("NACIMIENTO", "2000-10-10"),
 		number:         betNumber,
 		agencyId:       c.config.ID,
 	}
@@ -76,4 +76,11 @@ func (c *Client) StartClientLoop(ctx context.Context) {
 
 func (c *Client) Stop() {
 	c.betClient.Close()
+}
+
+func getEnvOrDefault(key, fallback string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return fallback
 }
