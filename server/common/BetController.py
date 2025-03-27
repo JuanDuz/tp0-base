@@ -1,16 +1,18 @@
 import logging
 from common.parser import parse_str_to_bets, parse_agency_id_from_get_winners
 from common.BetService import BetService
-from common.bet_client import BetClient
+
 
 from common.parser import parse_bets_to_str
+
+from common import NetworkClient
 
 
 class BetController:
     def __init__(self, service: BetService):
         self.service = service
 
-    def save_bets(self, raw_msg: str, client: BetClient):
+    def save_bets(self, raw_msg: str, client: NetworkClient):
         bets = parse_str_to_bets(raw_msg)
 
         if bets is None:
@@ -26,7 +28,7 @@ class BetController:
         self.service.save_bets(bets)
         client.send_ack()
 
-    def get_winners(self, raw_msg: str, client: BetClient):
+    def get_winners(self, raw_msg: str, client: NetworkClient):
         agency_id = parse_agency_id_from_get_winners(raw_msg)
 
         if agency_id is None:

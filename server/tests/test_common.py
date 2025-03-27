@@ -1,6 +1,15 @@
-from common.utils import *
+import datetime
 import os
 import unittest
+
+from common.Bet import Bet
+
+from common.utils import has_won
+from common.utils import LOTTERY_WINNER_NUMBER
+from common.utils import store_bets
+from common.utils import load_bets
+from common.utils import STORAGE_FILEPATH
+
 
 class TestUtils(unittest.TestCase):
 

@@ -3,7 +3,7 @@ from common.bet_protocol import receive_string, send_string
 from common.utils import Bet
 
 
-class BetClient:
+class NetworkClient:
     def __init__(self, socket):
         self.socket = socket
 
@@ -19,3 +19,5 @@ class BetClient:
     def send_error(self, msg):
         self.send_message(msg)
 
+    def close(self):
+        self.socket.close()

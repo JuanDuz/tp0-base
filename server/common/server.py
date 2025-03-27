@@ -1,54 +1,63 @@
+import os
 import socket
 import logging
 import signal
 import sys
+from multiprocessing import Process, Manager
 
-from common.bet_client import BetClient
 from common.utils import store_bets, log_bets_stored
 from common.utils import Bet
 from common.BetController import BetController
 from common.BetService import BetService
 from common.MessageHandler import MessageHandler
+from common.Client import Client
+from common.BetsFileMonitor import BetsFileMonitor
 
 
 class Server:
     def __init__(self, port, listen_backlog):
-        # Initialize server socket
+        signal.signal(signal.SIGTERM, self.graceful_shutdown)
+        signal.signal(signal.SIGINT, self.graceful_shutdown)
+
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.bind(('', port))
         self._server_socket.listen(listen_backlog)
         self.was_killed = False
-        self.agencies_ready = set()
-        self.message_handler = MessageHandler(BetController(BetService()))
-        signal.signal(signal.SIGTERM, self.graceful_shutdown)
-        signal.signal(signal.SIGINT, self.graceful_shutdown)
+        self._clients = []
+        self._processes = []
+        self.manager = Manager()
+        self.agencies_ready = self.manager.list()
+        self.winners = self.manager.list()
+        self.lottery_ended =  self.manager.Value('b', False)
+
 
     def run(self):
-        """
-        Dummy Server loop
 
-        Server that accept a new connections and establishes a
-        communication with a client. After client with communucation
-        finishes, servers starts to accept new connections again
-        """
+        bets_file_monitor = BetsFileMonitor(self.manager.Lock())
+        shared_bet_service = BetService(
+            total_agencies=int(os.environ.get("TOTAL_AGENCIES", "1")),
+            agencies_ready=self.agencies_ready,
+            winners=self.winners,
+            lottery_ended=self.lottery_ended,
+            bets_file_monitor=bets_file_monitor,
+            lock=self.manager.Lock()
+        )
 
-        # the server
         while not self.was_killed:
             client_sock = self.__accept_new_connection()
             if client_sock is not None:
-                self.__handle_client_connection(client_sock)
+                client = Client(client_sock, shared_bet_service)
+                self._clients.append(client)
+                p = Process(target=client.run)
+                p.daemon = True
+                self._processes.append(p)
+                p.start()
 
-    def __handle_client_connection(self, client_sock):
-        try:
-            bet_client = BetClient(client_sock)
-            raw_msg = bet_client.receive_message()
-            self.message_handler.handle(raw_msg, bet_client)
+            self._clean_up_dead_processes()
 
-        except OSError as e:
-            logging.error("action: receive_message | result: fail | error: %s", e)
-
-        finally:
-            client_sock.close()
+            if not self._processes:
+                logging.info("action: no_more_clients | result: success")
+                self.stop()
 
 
     def __accept_new_connection(self):
@@ -61,17 +70,51 @@ class Server:
             logging.error("action: accept_connections | result: fail | error: %s", e)
         return c
 
+
     def stop(self):
+        if self.was_killed:
+            return
+
         logging.info("action: close_socket | result: in_progress")
         self.was_killed = True
+
         try:
             self._server_socket.close()
+
+            for client in self._clients:
+                try:
+                    client.stop()
+                except Exception as e:
+                    logging.warning("action: client_stop | result: already_closed | error: %s", e)
+
+            for p in self._processes:
+                try:
+                    if p.is_alive():
+                        p.terminate()
+                    p.join()
+                    logging.info("action: process_joined | result: success")
+                except Exception as e:
+                    logging.warning("action: process_join | result: fail | error: %s", e)
+
+
         except OSError as e:
-            logging.warning("action: close_socket | result: already closed | error: %s", e)
+            logging.error("action: close_socket | result: fail | error: %s", e)
+
         logging.info("action: close_socket | result: success")
+
 
     def graceful_shutdown(self, signum, frame):
         logging.info("action: shutdown | result: in_progress | signal: %s", signum)
         self.stop()
         logging.info("action: shutdown | result: success")
         sys.exit(0)
+
+    def _clean_up_dead_processes(self):
+        alive = []
+        for p in self._processes:
+            if not p.is_alive():
+                p.join()
+                logging.info("action: process_cleaned | result: success")
+            else:
+                alive.append(p)
+        self._processes = alive

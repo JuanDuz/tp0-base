@@ -1,8 +1,5 @@
 import logging
-import os
 from typing import Optional
-
-from common.bet_client import BetClient
 
 from common.utils import Bet
 from common.utils import has_won
@@ -10,40 +7,58 @@ from common.utils import store_bets, log_bets_stored, load_bets
 
 
 class BetService:
-    def __init__(self):
-        self.agencies_ready: set[int] = set()
-        self.winners_by_agency: dict[int, set[Bet]] = {}
-        self.lottery_ended: bool = False
-        self.expected_agencies = int(os.environ.get("TOTAL_AGENCIES", "5"))
+    def __init__(
+            self,
+            total_agencies,
+            agencies_ready,
+            winners,
+            lottery_ended,
+            bets_file_monitor,
+            lock
+    ):
+        self.agencies_ready = agencies_ready
+        self.winners = winners
+        self.lottery_ended = lottery_ended
+        self.expected_agencies = total_agencies
+        self.bets_file_monitor = bets_file_monitor
+        self._lock = lock
 
     def save_bets(self, bets: list[Bet]):
-        store_bets(bets)
+        self.bets_file_monitor.safe_store_bets(bets)
         log_bets_stored(bets)
         logging.info(f"action: apuesta_recibida | result: success | cantidad: {len(bets)}")
 
     def get_winners(self, agency_id: int) -> Optional[set[Bet]]:
-        if self.lottery_ended:
-            return self.winners_by_agency.get(agency_id, set())
+        with self._lock:
+            logging.info(f"action: get_winners | agency_id: {agency_id}")
+            if self.lottery_ended.value:
+                logging.info(f"action: loterry_was_ended_so_return_winners | winners: {self._get_winners_by_agency_id(agency_id)}")
+                return self._get_winners_by_agency_id(agency_id)
 
-        self.agencies_ready.add(agency_id)
-        if len(self.agencies_ready) == self.expected_agencies:
-            self.__end_lottery()
+            if agency_id not in self.agencies_ready:
+                self.agencies_ready.append(agency_id)
+                logging.info(f"action: added_agency_to_ready | agency_id: {agency_id}")
 
-        if self.lottery_ended:
-            winners_per_agency = self.winners_by_agency.get(agency_id, set())
-            return winners_per_agency
+            logging.info(f"action: agencies ready | amount: {len(set(self.agencies_ready))}")
+            if len(set(self.agencies_ready)) == self.expected_agencies:
+                logging.info(f"action: all_agencies_ready | agencies_ready_amount: {len(set(self.agencies_ready))} | expected_agencies: {self.expected_agencies}")
+                self.__draw_lottery()
 
-        return None
+            if self.lottery_ended.value:
+                return self._get_winners_by_agency_id(agency_id)
+            return None
 
+    def __draw_lottery(self):
+        logging.info(f"action: draw_lottery | result: success")
+        self.lottery_ended.value = True
 
-    def __end_lottery(self):
-        self.lottery_ended = True
-
-        for bet in load_bets():
+        for bet in self.bets_file_monitor.safe_load_bets():
             if has_won(bet):
-                agency = bet.agency
-                if agency not in self.winners_by_agency:
-                    self.winners_by_agency[agency] = set()
-                self.winners_by_agency[agency].add(bet)
+                self.winners.append(bet)
 
         logging.info("action: sorteo | result: success")
+
+    def _get_winners_by_agency_id(self, agency_id):
+        if not self.winners:
+            return None
+        return [winner for winner in self.winners if winner.agency == agency_id]

@@ -1,5 +1,5 @@
 FROM golang:1.17 AS builder
-# Client uses docker multistage builds feature https://docs.docker.com/develop/develop-images/multistage-build/
+# common uses docker multistage builds feature https://docs.docker.com/develop/develop-images/multistage-build/
 # First stage is used to compile golang binary and second stage is used to only copy the 
 # binary generated to the deploy image. 
 # Docker multi stage does not delete intermediate stages used to build our image, so we need 
