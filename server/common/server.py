@@ -8,6 +8,8 @@ from common.utils import store_bets, log_bets_stored
 
 from common.utils import Bet
 
+from common.bet_formatter import parse_str_to_bets
+
 
 class Server:
     def __init__(self, port, listen_backlog):

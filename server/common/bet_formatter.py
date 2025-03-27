@@ -19,6 +19,19 @@ def parse_bet_message(message):
         number=fields[4],
     )
 
+def _parse_str_to_bet(raw_bet):
+    fields = raw_bet.split("|")
+    if len(fields) != 6:
+        raise ValueError("Invalid bet message format")
+    return Bet(
+        agency=fields[5],
+        first_name=fields[0],
+        last_name=fields[1],
+        document=fields[2],
+        birthdate=fields[3],
+        number=fields[4],
+    )
+
 def parse_str_to_bets(raw_msg: str) -> list[Bet]:
     lines = raw_msg.strip().split('\n')
     bets = []
