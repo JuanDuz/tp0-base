@@ -2,10 +2,17 @@ import logging
 
 
 def send_string(sock, message):
-    length = str(len(message.encode('utf-8'))) + "\n"
-    encoded = length.encode('utf-8') + message.encode('utf-8')
     try:
-        sock.sendall(encoded)
+        length = str(len(message.encode('utf-8'))) + "\n"
+        encoded = length.encode('utf-8') + message.encode('utf-8')
+
+        total_sent = 0
+        while total_sent < len(encoded):
+            sent = sock.send(encoded[total_sent:])
+            if sent == 0:
+                raise ConnectionError("Socket connection broken during send")
+            total_sent += sent
+
     except Exception as e:
         logging.error("error sending message | error: %s | message: %s", e, repr(message))
 
