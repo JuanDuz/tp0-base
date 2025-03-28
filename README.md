@@ -147,7 +147,7 @@ Cada conexión entrante desde una agencia se maneja en un **proceso independient
 
 #### 📌 Estado compartido
 
-Como los procesos no comparten memoria por defecto, se utilizó `multiprocessing.Manager()` para crear estructuras de datos **compartidas entre procesos**:
+Se utilizó `multiprocessing.Manager()` para crear estructuras de datos **compartidas entre procesos**:
 
 - `agencies_ready`: lista compartida para registrar qué agencias solicitaron los resultados.
 - `winners`: lista compartida que contiene todas las apuestas ganadoras.
@@ -157,6 +157,7 @@ Como los procesos no comparten memoria por defecto, se utilizó `multiprocessing
 
 Para evitar **condiciones de carrera** al acceder/modificar estas estructuras compartidas, se utilizó un **`Lock`** también generado con el `Manager`. Este lock protege las siguientes operaciones:
 
+- Verificación de lottery_ended boolean.
 - Verificación y modificación de `agencies_ready`.
 - Sorteo de los ganadores (`__draw_lottery`).
 - Lectura de resultados si el sorteo ya fue ejecutado.
