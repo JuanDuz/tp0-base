@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"io"
 	"net"
 	"strconv"
 	"strings"
@@ -56,9 +55,23 @@ func ReceiveString(conn net.Conn) (string, error) {
 	}
 
 	message := make([]byte, messageLength)
-	_, err = io.ReadFull(reader, message)
-	if err != nil {
-		return "", fmt.Errorf("failed to read message: %w", err)
+
+	/*	_, err = io.ReadFull(reader, message)
+		if err != nil {
+			return "", fmt.Errorf("failed to read message: %w", err)
+		}
+	*/
+
+	totalRead := 0
+	for totalRead < messageLength {
+		n, err := reader.Read(message[totalRead:])
+		if err != nil {
+			return "", fmt.Errorf("failed to read message: %w", err)
+		}
+		if n == 0 {
+			return "", fmt.Errorf("connection closed before message was fully read")
+		}
+		totalRead += n
 	}
 
 	return string(message), nil
