@@ -1,4 +1,4 @@
-from multiprocessing import Lock
+import logging
 
 from common import Bet
 
@@ -10,8 +10,15 @@ class BetsFileMonitor:
 
     def safe_store_bets(self, bets: list[Bet]):
         with self._lock:
-            store_bets(bets)
+            try:
+                store_bets(bets)
+            except Exception as e:
+                logging.error(f"action: safe_store_bets | result: fail | error: {e} | bets: {bets}")
 
     def safe_load_bets(self) -> list[Bet]:
         with self._lock:
-            return list(load_bets())
+            try:
+                return list(load_bets())
+            except Exception as e:
+                logging.error(f"action: safe_load_bets | result: fail | error: {e}")
+                return []
